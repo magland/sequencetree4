@@ -1,0 +1,642 @@
+++++++ HEADER ++++++
+STVERSION=4.1.14
+++++++ END HEADER ++++++
+++++++ NOTES ++++++
+=== spgr.sts - Spoiled gradient echo ===
+
+Global Parameters
+  FOV [mm] - field of view
+  readout_N - number of points per readout
+  PE1 - first phase encode iterator
+  PE2 - second phase encode iterator
+  TE [us] - echo time
+  TR [us] - repetition time
+  dwell_time [us] - readout dwell time
+  RF_spoiling [0 or 1] - turn on or off RF-spoiling (randomization of transmit/receive phase)
+  flip_angle [degrees] - flip angle
+  slice_thickness [mm] - slice thickness
+  slice_gradient_amplitude [uT/mm] - amplitude of slice select gradient
+  spoiler_moment [uT/mm-us] - 3D moment of spoiler gradient at end of each repetition
+  prep_PE1 - iterator for preparation repetetitions
+
+
+To perform 3D phase encoding
+  For example, set PE2 = -4:1:3, for 8 phase encodes
+  To interchange the looping order, go to the source code for the loop node and simply switch the order of PE1 and PE2 iterators
+
+To switch to a non-selective pulse
+  1. set slice_thickness=0
+  2. set slice_gradient_amplitude=(0,0,0)
+  3. If you want a rectangular shape pulse, right click on the "RF" node and select "promote node", then select STRF
+
+== Siemens User Interface Directives =====
+UIDOUBLE	NAME=TE		RANGE=1:1:100	LABEL="TE"		UNITS="ms"	FACTOR=0.001
+UIDOUBLE	NAME=TR		RANGE=10:10:3000	LABEL="TR"		UNITS="ms"	FACTOR=0.001
+UIDOUBLE	NAME=flip_angle	RANGE=0:5:180	LABEL="Flip angle"	UNITS="deg"
+UIDOUBLE	NAME=slice_thickness	RANGE=2:2:50		LABEL="Slice thickness"	UNITS="mm"
+UICHECKBOX	NAME=RF_spoiling	LABEL="RF Spoiling"
+============================
+
+++++++ END NOTES ++++++
+++++++ GLOBAL ++++++
+FOV	(256,256,50)	mm
+readout_N	256	
+PE1	-128:1:127	
+PE2	0:1:0	
+TE	6000	microsec
+TR	50000	microsec
+dwell_time	30	microsec
+RF_spoiling	1	0 or 1
+flip_angle	45	degrees
+slice_thickness	10	mm
+slice_gradient_amplitude	(0,0,10)	uT/mm
+spoiler_moment	(0,0,100000)	uT/mm-us
+prep_PE1	1:1:10	
+FOV	->	Root->FOV
+readout_N	->	Root->MainLoop->Block->Acquire->Readout->N
+readout_N	->	Root->PrepLoop->Block->Acquire->Readout->N
+PE1	->	Root->MainLoop->PE1
+PE2	->	Root->MainLoop->PE2
+TE	->	Root->MainLoop->Block->TE
+TE	->	Root->PrepLoop->Block->TE
+TR	->	Root->MainLoop->Block->TR
+TR	->	Root->PrepLoop->Block->TR
+dwell_time	->	Root->MainLoop->Block->Acquire->Readout->dwell_time
+dwell_time	->	Root->PrepLoop->Block->Acquire->Readout->dwell_time
+RF_spoiling	->	Root->MainLoop->RF_spoiling
+RF_spoiling	->	Root->PrepLoop->RF_spoiling
+flip_angle	->	Root->PrepLoop->Block->Excite->RF->flip_angle
+flip_angle	->	Root->MainLoop->Block->Excite->RF->flip_angle
+slice_thickness	->	Root->MainLoop->Block->Excite->slice_thickness
+slice_thickness	->	Root->PrepLoop->Block->Excite->slice_thickness
+slice_gradient_amplitude	->	Root->MainLoop->Block->Excite->gradient_amplitude
+slice_gradient_amplitude	->	Root->PrepLoop->Block->Excite->gradient_amplitude
+spoiler_moment	->	Root->PrepLoop->Block->Rewind->moment
+spoiler_moment	->	Root->MainLoop->Block->Rewind->moment
+prep_PE1	->	Root->PrepLoop->PE1
+++++++ END GLOBAL ++++++
+++++++ RECONSTRUCTION ++++++
+function reconstruction(num_channels)
+if (nargin<1) num_channels=1; end;
+
+if (num_channels==1)
+	X=readmda('ADC1.mda');
+	X=fftshift(fftn(fftshift(X)));
+	writemda(X,'recon.mda');
+end;
+
+++++++ END NOTES ++++++
+++++++ LINK GROUPS ++++++
+
+GROUP	Root->PrepLoop->Block	Root->MainLoop->Block
+
+++++++ END LINK GROUPS ++++++
+
+
+++++++ NODES ++++++
+
+PARAMETER	STVector3	FOV	(256,256,50)	mm	active	FOV
+PARAMETER	STReal	maxamp	20	uT/mm	active	
+PARAMETER	STReal	ramprate	0.1	[uT/mm]/us	active	
+PARAMETER	STReal	gamma	42.5764	Hz/uT	active	
+PARAMETER	STVector3	FOV_shift	(0,0,0)	mm	active	
+PARAMETER	STVector3	phase_shift	237	degrees	passive	
+PARAMETER	STVector3	FOV_shift_offset	(0,0,0)	mm; used internally	active	
+CHILD	SPGRLoop	PrepLoop
+    PARAMETER	STIterator	PE1	1:1:10		active	prep_PE1
+    PARAMETER	STIterator	PE2	0:1:0		active	
+    PARAMETER	STVector3	readout_dir	(1,0,0)		active	
+    PARAMETER	STVector3	PE1_dir	(0,0,0)		active	
+    PARAMETER	STVector3	PE2_dir	(0,0,1)		active	
+    PARAMETER	STInteger	RF_spoiling	1	0 or 1	active	RF_spoiling
+    CHILD	STGradientEchoBlock	Block
+        PARAMETER	STReal	TE	6000	microsec	active	TE
+        PARAMETER	STReal	TR	50000	microsec	active	TR
+        PARAMETER	STVector3	kspace_dir	(1,0,0)		passive	
+        PARAMETER	STVector3	kspace_echo	(0,0,0)		passive	
+        PARAMETER	STReal	excite_time	1000	microsec	active	
+        CHILD	STExcite	Excite
+            PARAMETER	STVector3	gradient_amplitude	(0,0,10)	uT/mm	active	slice_gradient_amplitude
+            PARAMETER	STReal	slice_thickness	10	mm	active	slice_thickness
+            PARAMETER	STReal	bandwidth	4257.64	Hz	passive	
+            PARAMETER	STInteger	prephase	1	0 or 1	active	
+            CHILD	STGradientMom	Prephase
+                PARAMETER	STVector3	ramp_times_1	(0,0,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(0,0,210)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(0,0,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(0,0,-19.7561)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            CHILD	STGradientAmp	SliceGradient
+                PARAMETER	STReal	ramp_time_1	200	microsec	active	
+                PARAMETER	STReal	plateau_time	1400	microsec	passive	
+                PARAMETER	STReal	ramp_time_2	200	microsec	active	
+                PARAMETER	STVector3	amplitude	(0,0,10)	uT/mm	passive	
+                END
+            CHILD	STSincRF	RF
+                PARAMETER	STReal	num_lobes_left	2		active	
+                PARAMETER	STReal	num_lobes_right	2		active	
+                PARAMETER	STReal	flip_angle	45	degrees	active	flip_angle
+                PARAMETER	STReal	pulse_duration	1409.23	microsec	passive	
+                PARAMETER	STReal	reference_fraction	0.5		passive	
+                PARAMETER	STReal	bandwidth	4257.64	Hz	passive	
+                PARAMETER	STReal	time_step	10	microsec	active	
+                PARAMETER	STReal	phase	0	degrees	active	
+                PARAMETER	STReal	frequency	0	Hz	active	
+                PARAMETER	STInteger	pulse_type	1	1=Excite; 2=Refocus	active	
+                PARAMETER	STVector3	gradient_amplitude	(0,0,10)	uT/mm; for internal use	passive	
+                PARAMETER	STReal	slice_thickness	10	mm; for internal use	passive	
+                END
+            END
+        CHILD	STAcquire	Acquire
+            PARAMETER	STVector3	echo_moment	(0,0,0)	[uT/mm]-us	passive	
+            PARAMETER	STVector3	moment_per_point	(91.7468,0,0)	[uT/mm]-us	passive	
+            CHILD	STGradientMom	Encode
+                PARAMETER	STVector3	ramp_times_1	(200,0,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(410,0,200)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(200,0,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(-19.7531,0,-19.75)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            CHILD	STGradientAmp	ReadoutGradient
+                PARAMETER	STReal	ramp_time_1	200	microsec	active	
+                PARAMETER	STReal	plateau_time	7680	microsec	passive	
+                PARAMETER	STReal	ramp_time_2	200	microsec	active	
+                PARAMETER	STVector3	amplitude	(3.05823,0,0)	uT/mm	passive	
+                END
+            CHILD	STReadout	Readout
+                PARAMETER	STReal	dwell_time	30	microsec	active	dwell_time
+                PARAMETER	STInteger	N	256		active	readout_N
+                PARAMETER	STReal	reference_fraction	0.5		active	
+                PARAMETER	STReal	actual_reference_fraction	0.5		passive	
+                PARAMETER	STReal	reference_sample	128.5		passive	
+                PARAMETER	STReal	phase	0	degrees	active	
+                PARAMETER	STReal	frequency	0	Hz	active	
+                PARAMETER	STVector3	gradient_amplitude	(3.05823,0,0)	uT/mm; for internal use	passive	
+                PARAMETER	STInteger	round_up_reference_time	1	0 or 1	active	
+                END
+            END
+        CHILD	STEncode	Rewind
+            PARAMETER	STVector3	moment	(0,0,100000)	[uT/mm]-us	active	spoiler_moment
+            PARAMETER	STInteger	do_rewind	1	0 or 1	active	
+            CHILD	STGradientMom	Gradient
+                PARAMETER	STVector3	ramp_times_1	(200,0,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(410,0,4800)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(200,0,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(-19.7531,0,20)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            END
+        END
+    END
+CHILD	SPGRLoop	MainLoop
+    PARAMETER	STIterator	PE1	-128:1:127		active	PE1
+    PARAMETER	STIterator	PE2	0:1:0		active	PE2
+    PARAMETER	STVector3	readout_dir	(1,0,0)		active	
+    PARAMETER	STVector3	PE1_dir	(0,1,0)		active	
+    PARAMETER	STVector3	PE2_dir	(0,0,1)		active	
+    PARAMETER	STInteger	RF_spoiling	1	0 or 1	active	RF_spoiling
+    CHILD	STGradientEchoBlock	Block
+        PARAMETER	STReal	TE	6000	microsec	active	TE
+        PARAMETER	STReal	TR	50000	microsec	active	TR
+        PARAMETER	STVector3	kspace_dir	(1,0,0)		passive	
+        PARAMETER	STVector3	kspace_echo	(0,-88,0)		passive	
+        PARAMETER	STReal	excite_time	1000	microsec	active	
+        CHILD	STExcite	Excite
+            PARAMETER	STVector3	gradient_amplitude	(0,0,10)	uT/mm	active	slice_gradient_amplitude
+            PARAMETER	STReal	slice_thickness	10	mm	active	slice_thickness
+            PARAMETER	STReal	bandwidth	4257.64	Hz	passive	
+            PARAMETER	STInteger	prephase	1	0 or 1	active	
+            CHILD	STGradientMom	Prephase
+                PARAMETER	STVector3	ramp_times_1	(0,0,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(0,0,210)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(0,0,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(0,0,-19.7561)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            CHILD	STGradientAmp	SliceGradient
+                PARAMETER	STReal	ramp_time_1	200	microsec	active	
+                PARAMETER	STReal	plateau_time	1400	microsec	passive	
+                PARAMETER	STReal	ramp_time_2	200	microsec	active	
+                PARAMETER	STVector3	amplitude	(0,0,10)	uT/mm	passive	
+                END
+            CHILD	STSincRF	RF
+                PARAMETER	STReal	num_lobes_left	2		active	
+                PARAMETER	STReal	num_lobes_right	2		active	
+                PARAMETER	STReal	flip_angle	45	degrees	active	flip_angle
+                PARAMETER	STReal	pulse_duration	1409.23	microsec	passive	
+                PARAMETER	STReal	reference_fraction	0.5		passive	
+                PARAMETER	STReal	bandwidth	4257.64	Hz	passive	
+                PARAMETER	STReal	time_step	10	microsec	active	
+                PARAMETER	STReal	phase	0	degrees	active	
+                PARAMETER	STReal	frequency	0	Hz	active	
+                PARAMETER	STInteger	pulse_type	1	1=Excite; 2=Refocus	active	
+                PARAMETER	STVector3	gradient_amplitude	(0,0,10)	uT/mm; for internal use	passive	
+                PARAMETER	STReal	slice_thickness	10	mm; for internal use	passive	
+                END
+            END
+        CHILD	STAcquire	Acquire
+            PARAMETER	STVector3	echo_moment	(0,-8073.72,0)	[uT/mm]-us	passive	
+            PARAMETER	STVector3	moment_per_point	(91.7468,0,0)	[uT/mm]-us	passive	
+            CHILD	STGradientMom	Encode
+                PARAMETER	STVector3	ramp_times_1	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(410,390,200)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(-19.7531,-13.6843,-19.75)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            CHILD	STGradientAmp	ReadoutGradient
+                PARAMETER	STReal	ramp_time_1	200	microsec	active	
+                PARAMETER	STReal	plateau_time	7680	microsec	passive	
+                PARAMETER	STReal	ramp_time_2	200	microsec	active	
+                PARAMETER	STVector3	amplitude	(3.05823,0,0)	uT/mm	passive	
+                END
+            CHILD	STReadout	Readout
+                PARAMETER	STReal	dwell_time	30	microsec	active	dwell_time
+                PARAMETER	STInteger	N	256		active	readout_N
+                PARAMETER	STReal	reference_fraction	0.5		active	
+                PARAMETER	STReal	actual_reference_fraction	0.5		passive	
+                PARAMETER	STReal	reference_sample	128.5		passive	
+                PARAMETER	STReal	phase	0	degrees	active	
+                PARAMETER	STReal	frequency	0	Hz	active	
+                PARAMETER	STVector3	gradient_amplitude	(3.05823,0,0)	uT/mm; for internal use	passive	
+                PARAMETER	STInteger	round_up_reference_time	1	0 or 1	active	
+                END
+            END
+        CHILD	STEncode	Rewind
+            PARAMETER	STVector3	moment	(0,0,100000)	[uT/mm]-us	active	spoiler_moment
+            PARAMETER	STInteger	do_rewind	1	0 or 1	active	
+            CHILD	STGradientMom	Gradient
+                PARAMETER	STVector3	ramp_times_1	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(410,390,4800)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(-19.7531,13.6843,20)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            END
+        END
+    END
+END
+
+++++++ END NODES ++++++
+
+++++++ USERCLASS SPGRLoop ++++++
+
+++++++ HEADER
+class ST_EXPORT SPGRLoop : public STLoop
+{
+public:
+	/* BEGIN SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	STIterator PE1;
+	STIterator PE2;
+	STVector3 readout_dir;
+	STVector3 PE1_dir;
+	STVector3 PE2_dir;
+	STInteger RF_spoiling;
+	STGradientEchoBlock *Block;
+	/* END SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	
+	SPGRLoop();
+	bool prepare();
+	
+	bool loopRun();
+};
+
+
+++++++ SOURCE
+SPGRLoop::SPGRLoop() {
+	ST_CLASS(SPGRLoop,STLoop)
+	/* ST_PARAMETERS */	
+	ST_PARAMETER(STIterator,PE1,0:1:0,)
+	ST_PARAMETER(STIterator,PE2,0:1:0,)
+	ST_PARAMETER(STVector3,readout_dir,(1,0,0),)
+	ST_PARAMETER(STVector3,PE1_dir,(0,1,0),)
+	ST_PARAMETER(STVector3,PE2_dir,(0,0,1),)
+	ST_PARAMETER(STInteger,RF_spoiling,0,0 or 1)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientEchoBlock,Block)
+}
+bool SPGRLoop::prepare() {
+	Block->kspace_dir=readout_dir;
+	return STLoop::prepare();
+}
+
+
+bool SPGRLoop::loopRun() {
+    if (RF_spoiling) {
+        sequence()->phase_shift=rand()%360;
+    }
+	Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2;
+	return Block->run();
+}
+
+++++++ END
+
+++++++ CLASS SPGRLoop_1 ++++++
+
+++++++ HEADER
+class ST_EXPORT SPGRLoop_1 : public STLoop
+{
+public:
+	/* BEGIN SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	STIterator PE1;
+	STIterator PE2;
+	STVector3 readout_dir;
+	STVector3 PE1_dir;
+	STVector3 PE2_dir;
+	STInteger RF_spoiling;
+	STGradientEchoBlock *Block;
+	/* END SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	
+	SPGRLoop_1();
+	bool prepare();
+	
+	bool loopRun();
+};
+
+
+++++++ SOURCE
+SPGRLoop_1::SPGRLoop_1() {
+	ST_CLASS(SPGRLoop_1,STLoop)
+	/* ST_PARAMETERS */	
+	ST_PARAMETER(STIterator,PE1,0:1:0,)
+	ST_PARAMETER(STIterator,PE2,0:1:0,)
+	ST_PARAMETER(STVector3,readout_dir,(1,0,0),)
+	ST_PARAMETER(STVector3,PE1_dir,(0,1,0),)
+	ST_PARAMETER(STVector3,PE2_dir,(0,0,1),)
+	ST_PARAMETER(STInteger,RF_spoiling,0,0 or 1)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientEchoBlock,Block)
+}
+bool SPGRLoop_1::prepare() {
+	Block->kspace_dir=readout_dir;
+	return STLoop::prepare();
+}
+
+
+bool SPGRLoop_1::loopRun() {
+    if (RF_spoiling) {
+        sequence()->phase_shift=rand()%360;
+    }
+	Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2;
+	return Block->run();
+}
+
+++++++ END
+
+++++++ CLASS STRoot ++++++
+
+++++++ HEADER
+class STRoot : public STSequence
+{
+public:
+	/* BEGIN SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	SPGRLoop *PrepLoop;
+	SPGRLoop *MainLoop;
+	/* END SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	
+	STRoot();
+};
+
+
+++++++ SOURCE
+STRoot::STRoot() {
+	ST_CLASS(STRoot,STSequence)
+	/* ST_PARAMETERS */
+	/* ST_CHILDREN */
+	ST_CHILD(SPGRLoop,PrepLoop);
+	ST_CHILD(SPGRLoop,MainLoop);
+}
+
+++++++ END
+
+++++++ USERCLASS SpinLockRF ++++++
+
+++++++ HEADER
+class SpinLockRF : public STNode {
+public:
+	/* BEGIN SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	STReal flip_angle_1;
+	STReal flip_angle_2;
+	STReal pulse_duration_1;
+	STReal pulse_duration_2;
+	STInteger alternating_phase;
+	STInteger frequency_offset;
+	STInteger num_sl_pulses;
+	STReal inter_pulse_delay;
+	STReal time_step;
+	STReal phase;
+	STReal frequency;
+	/* END SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	
+	//events
+	STScannerRFPulse *RF_bread;
+	STScannerRFPulse *RF_meat;
+	/////////////////////////////////////////////////////
+	SpinLockRF();
+	virtual ~SpinLockRF();
+	bool initialize();
+	bool prepare();
+	bool run();
+	double duration();
+	double referenceTime();
+	Vector3 terminalMoment();
+	Vector3 gradientStartTimes(); 
+	Vector3 gradientEndTimes();
+	double SAR();
+private:
+	void delete_events();
+};
+
+
+++++++ SOURCE
+SpinLockRF::SpinLockRF() {
+	ST_CLASS(SpinLockRF,STNode)
+	RF_bread=0;
+	RF_meat=0;
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal, flip_angle_1, 90, degrees)
+	ST_PARAMETER(STReal, flip_angle_2, 360, degrees)
+	ST_PARAMETER(STReal, pulse_duration_1, 300, microsec)
+	ST_PARAMETER(STReal, pulse_duration_2, 1000, microsec)
+	ST_PARAMETER(STInteger, alternating_phase, 0, 0 or 1) 
+	ST_PARAMETER(STInteger, frequency_offset, 0, Hz)
+	ST_PARAMETER(STInteger, num_sl_pulses, 10,)
+	ST_PARAMETER(STReal, inter_pulse_delay, 60, microsec)
+	ST_PARAMETER(STReal, time_step, 10, microsec)
+	ST_PARAMETER(STReal, phase, 0, degrees)
+	ST_PARAMETER(STReal, frequency, 0, Hz)
+	/* ST_CHILDREN */
+}
+SpinLockRF::~SpinLockRF() {
+	delete_events();
+}
+void SpinLockRF::delete_events() {
+	if (RF_bread) delete RF_bread; RF_bread=0;
+	if (RF_meat) delete RF_meat; RF_meat=0;
+}
+bool SpinLockRF::initialize() {
+	clearChildren();
+	if (!scanner()) return false;
+	delete_events();
+	RF_bread=scanner()->allocateRFPulse(this);
+	RF_meat=scanner()->allocateRFPulse(this);
+	return true;
+}
+bool SpinLockRF::prepare() {
+	if (!RF_bread) return false;
+	if (!RF_meat) return false;
+	if (time_step<=0) return false;
+	if (pulse_duration_1<=time_step) return false;
+	if (pulse_duration_2<=time_step) return false;
+	if (!sequence()) return false;
+		
+		long N1=(long)(pulse_duration_1/time_step);
+		long N2=(long)(pulse_duration_2/time_step);
+		
+		double *data_mag_1=(double *)malloc(sizeof(double)*N1);
+		double *data_phase_1=(double *)malloc(sizeof(double)*N1);
+		double *data_mag_2=(double *)malloc(sizeof(double)*N2);
+		double *data_phase_2=(double *)malloc(sizeof(double)*N2);
+		double sum_re_1=0,sum_re_2=0;
+		double sum_im_1=0,sum_im_2=0;
+		{for (long j=0; j<N1; j++) {
+			double re=1,im=0;
+			sum_re_1+=re;
+			sum_im_1+=im;
+			data_mag_1[j]=sqrt(re*re+im*im);
+			data_phase_1[j]=atan2(im,re)/(2*3.1415926535)*360;
+		}}
+		{for (long j=0; j<N2; j++) {
+			double re=1,im=0;
+			sum_re_2+=re;
+			sum_im_2+=im;
+			data_mag_2[j]=sqrt(re*re+im*im);
+			data_phase_2[j]=atan2(im,re)/(2*3.1415926535)*360;
+		}}
+		//uT * sec * Hz/uT * degrees = degrees  
+		double factor1=sqrt(sum_re_1*sum_re_1+sum_im_1*sum_im_1)*time_step/1.0E6*sequence()->gamma*360/90;
+		double factor2=sqrt(sum_re_2*sum_re_2+sum_im_2*sum_im_2)*time_step/1.0E6*sequence()->gamma*360/90;
+		{for (long j=0; j<N1; j++) {
+			data_mag_1[j]/=factor1;
+		}}
+		{for (long j=0; j<N2; j++) {
+			data_mag_2[j]/=factor2;
+		}}
+		RF_bread->setPulse(N1,data_mag_1,data_phase_1,time_step,90,pulse_duration_1/2);
+		RF_meat->setPulse(N2,data_mag_2,data_phase_2,time_step,90,pulse_duration_2/2);
+		free(data_mag_1);
+		free(data_phase_1);
+		free(data_mag_2);
+		free(data_phase_2);
+	
+	RF_bread->setFlipAngle(flip_angle_1);
+	RF_meat->setFlipAngle(flip_angle_2);
+	
+	setModified(false);
+	return true;
+}
+bool SpinLockRF::run() {
+	if (!RF_bread) return false;
+	if (!RF_meat) return false;
+	if (!scanner()) return false;
+	if (!sequence()) return false;
+
+	double ph=phase;
+	Vector3 totmom=initialTotalMoment();
+	ph+=sequence()->phaseAdjustment();
+	ph+=(totmom.x()*sequence()->getFOVShiftX()
+		+totmom.y()*sequence()->getFOVShiftY()
+		+totmom.z()*sequence()->getFOVShiftZ())*sequence()->gamma/1.0E6*360;
+	RF_bread->setPhase(ph);
+	RF_meat->setPhase(ph);
+	
+	RF_bread->setFrequency(frequency);
+	RF_meat->setFrequency(frequency);
+	
+
+	//The excite pulse 
+	double time_offset=0;
+	RF_bread->setStartTime(startTime()+time_offset);
+	if (RF_bread->pulseCount()) scanner()->addEvent(RF_bread);
+	time_offset+=pulse_duration_1+inter_pulse_delay;
+
+	//inner pulses
+	for (int j=0; j<num_sl_pulses; j++) {
+		if (alternating_phase) {
+			if (j%2==0) {
+				RF_meat->setPhase(ph+0);
+				RF_meat->setFrequency(frequency_offset);
+			}
+			else {
+				RF_meat->setPhase(ph+180);
+				RF_meat->setFrequency(frequency_offset);
+			}
+		}
+		RF_meat->setStartTime(startTime()+time_offset);
+		if (RF_meat->pulseCount()) scanner()->addEvent(RF_meat);
+		time_offset+=pulse_duration_2+inter_pulse_delay;
+	}
+
+	//The store pulse
+	RF_bread->setStartTime(startTime()+time_offset);
+	if (RF_bread->pulseCount()) scanner()->addEvent(RF_bread);
+	time_offset+=pulse_duration_1+inter_pulse_delay;
+	
+	return true;
+}
+double SpinLockRF::duration() {
+	if ((!RF_meat)||(RF_bread)) return 0;
+	return pulse_duration_1*2 + pulse_duration_2*num_sl_pulses + inter_pulse_delay*(num_sl_pulses+1);
+}
+double SpinLockRF::referenceTime() {
+	return 0;
+}
+Vector3 SpinLockRF::terminalMoment() {
+	return Vector3();
+}
+
+Vector3 SpinLockRF::gradientStartTimes() {
+	return Vector3(0,0,0);
+}
+Vector3 SpinLockRF::gradientEndTimes() {
+	double dur=duration();
+	return Vector3(dur,dur,dur);
+}
+
+double SpinLockRF::SAR() {
+	if ((!RF_bread)||(!RF_meat)) return 0;
+	return RF_bread->SAR()*2 + RF_meat->SAR()*num_sl_pulses;
+}
+
+++++++ END
+++++++ RESOURCES ++++++
+
+
+
+++++++ END RESOURCES ++++++
+

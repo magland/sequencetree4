@@ -1,0 +1,315 @@
+<ui version="4.0" >
+ <class>STMainWindow</class>
+ <widget class="QMainWindow" name="STMainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>562</width>
+    <height>316</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>SequenceTree 4</string>
+  </property>
+  <property name="iconSize" >
+   <size>
+    <width>36</width>
+    <height>24</height>
+   </size>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" >
+    <property name="spacing" >
+     <number>0</number>
+    </property>
+    <property name="margin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTabWidget" name="tabWidget" >
+      <widget class="QWidget" name="tab" >
+       <attribute name="title" >
+        <string>Tab 1</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_2" >
+       <attribute name="title" >
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>562</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
+     <string>File</string>
+    </property>
+    <addaction name="actionNewSequence" />
+    <addaction name="actionOpenSequence" />
+    <addaction name="actionOpenSequenceFromWeb" />
+    <addaction name="actionCloseSequence" />
+    <addaction name="separator" />
+    <addaction name="actionSaveSequence" />
+    <addaction name="actionSaveSequenceAs" />
+    <addaction name="separator" />
+    <addaction name="actionUploadSequenceToWeb" />
+   </widget>
+   <widget class="QMenu" name="menuCompile" >
+    <property name="title" >
+     <string>Sequence</string>
+    </property>
+    <addaction name="actionCompile" />
+   </widget>
+   <widget class="QMenu" name="menuEdit" >
+    <property name="title" >
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCopyNode" />
+    <addaction name="actionPasteNode" />
+   </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+    <addaction name="actionConfiguration" />
+    <addaction name="actionExportToScanner" />
+    <addaction name="actionUpdateExportToScanner" />
+    <addaction name="actionExportToVirtualScanner" />
+    <addaction name="actionReadRawData" />
+    <addaction name="actionCreateParameterFile" />
+    <addaction name="separator" />
+    <addaction name="actionUpdateCodeFromWeb" />
+    <addaction name="separator" />
+    <addaction name="actionChainLink" />
+    <addaction name="actionRTST" />
+    <addaction name="actionMRPulseTool" />
+    <addaction name="separator" />
+    <addaction name="actionPreferences" />
+   </widget>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>Help</string>
+    </property>
+    <addaction name="actionAboutSequenceTree" />
+    <addaction name="actionSequenceTreeWiki" />
+   </widget>
+   <widget class="QMenu" name="menuResources" >
+    <property name="title" >
+     <string>Resources</string>
+    </property>
+    <addaction name="actionAddResource" />
+    <addaction name="actionImportRFPulseWaveform" />
+   </widget>
+   <addaction name="menuFile" />
+   <addaction name="menuEdit" />
+   <addaction name="menuCompile" />
+   <addaction name="menuResources" />
+   <addaction name="menuTools" />
+   <addaction name="menuHelp" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QToolBar" name="toolBar" >
+   <property name="windowTitle" >
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNewSequence" />
+   <addaction name="actionOpenSequence" />
+   <addaction name="actionSaveSequence" />
+   <addaction name="separator" />
+   <addaction name="actionCompile" />
+   <addaction name="separator" />
+   <addaction name="actionChainLink" />
+   <addaction name="actionRTST" />
+   <addaction name="actionMRPulseTool" />
+   <addaction name="actionImportRFPulseWaveform" />
+   <addaction name="actionExportToVirtualScanner" />
+  </widget>
+  <action name="actionNewSequence" >
+   <property name="icon" >
+    <iconset resource="st4.qrc" >
+     <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
+   </property>
+   <property name="text" >
+    <string>New Sequence</string>
+   </property>
+  </action>
+  <action name="actionOpenSequence" >
+   <property name="icon" >
+    <iconset resource="st4.qrc" >
+     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Open Sequence...</string>
+   </property>
+  </action>
+  <action name="actionSaveSequence" >
+   <property name="icon" >
+    <iconset resource="st4.qrc" >
+     <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Save Sequence</string>
+   </property>
+  </action>
+  <action name="actionCloseSequence" >
+   <property name="icon" >
+    <iconset>
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text" >
+    <string>Close Sequence</string>
+   </property>
+  </action>
+  <action name="actionSaveSequenceAs" >
+   <property name="text" >
+    <string>Save Sequence As...</string>
+   </property>
+  </action>
+  <action name="actionCompile" >
+   <property name="text" >
+    <string>Compile</string>
+   </property>
+   <property name="toolTip" >
+    <string>Compile the pulse sequence</string>
+   </property>
+  </action>
+  <action name="actionCopyNode" >
+   <property name="text" >
+    <string>Copy node</string>
+   </property>
+  </action>
+  <action name="actionPasteNode" >
+   <property name="text" >
+    <string>Paste node...</string>
+   </property>
+  </action>
+  <action name="actionConfiguration" >
+   <property name="text" >
+    <string>Compiler Configuration...</string>
+   </property>
+  </action>
+  <action name="actionAboutSequenceTree" >
+   <property name="text" >
+    <string>About SequenceTree4...</string>
+   </property>
+  </action>
+  <action name="actionSequenceTreeWiki" >
+   <property name="text" >
+    <string>SequenceTree Wiki...</string>
+   </property>
+  </action>
+  <action name="actionExportToScanner" >
+   <property name="text" >
+    <string>Export to Scanner...</string>
+   </property>
+  </action>
+  <action name="actionOpenSequenceFromWeb" >
+   <property name="text" >
+    <string>Open Sequence from Web...</string>
+   </property>
+  </action>
+  <action name="actionUpdateCodeFromWeb" >
+   <property name="text" >
+    <string>Update code from web...</string>
+   </property>
+  </action>
+  <action name="actionReadRawData" >
+   <property name="text" >
+    <string>Read raw data...</string>
+   </property>
+  </action>
+  <action name="actionUploadSequenceToWeb" >
+   <property name="text" >
+    <string>Upload Sequence to Web...</string>
+   </property>
+  </action>
+  <action name="actionExportToVirtualScanner" >
+   <property name="icon" >
+    <iconset resource="st4.qrc" >
+     <normaloff>:/images/vscanner.png</normaloff>:/images/vscanner.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Export to Virtual Scanner...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Export pulse sequence to Virtual Scanner</string>
+   </property>
+  </action>
+  <action name="actionChainLink" >
+   <property name="icon" >
+    <iconset resource="st4.qrc" >
+     <normaloff>:/images/chainlink.png</normaloff>:/images/chainlink.png</iconset>
+   </property>
+   <property name="text" >
+    <string>ChainLink...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Launch ChainLink - data processing GUI</string>
+   </property>
+  </action>
+  <action name="actionUpdateExportToScanner" >
+   <property name="text" >
+    <string>Enable/Update Export to Scanner...</string>
+   </property>
+  </action>
+  <action name="actionMRPulseTool" >
+   <property name="text" >
+    <string>MR Pulse Tool...</string>
+   </property>
+   <property name="toolTip" >
+    <string>Open MR Pulse Tool - RF pulse design program</string>
+   </property>
+  </action>
+  <action name="actionImportRFPulseWaveform" >
+   <property name="icon" >
+    <iconset resource="st4.qrc" >
+     <normaloff>:/images/sinc.png</normaloff>:/images/sinc.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Import RF Pulse Waveform...</string>
+   </property>
+  </action>
+  <action name="actionAddResource" >
+   <property name="text" >
+    <string>Add Resource...</string>
+   </property>
+  </action>
+  <action name="actionPreferences" >
+   <property name="text" >
+    <string>Preferences...</string>
+   </property>
+  </action>
+  <action name="actionCreateParameterFile" >
+   <property name="text" >
+    <string>Create parameter file...</string>
+   </property>
+  </action>
+  <action name="actionRTST" >
+   <property name="text" >
+    <string>RTST...</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="st4.qrc" />
+ </resources>
+ <connections/>
+</ui>

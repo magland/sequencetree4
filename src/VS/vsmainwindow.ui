@@ -1,0 +1,348 @@
+<ui version="4.0" >
+ <class>VSMainWindow</class>
+ <widget class="QMainWindow" name="VSMainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>818</width>
+    <height>630</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>SequenceTree - Virtual Scanner</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" name="horizontalLayout_5" >
+    <item>
+     <widget class="QSplitter" name="vsplitter" >
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QFrame" name="frame" >
+       <property name="frameShape" >
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4" >
+        <item>
+         <widget class="QSplitter" name="hsplitter" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="VSSequenceView" native="1" name="sequence_view" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>200</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize" >
+            <size>
+             <width>10000</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+          <widget class="VSPhantomView" native="1" name="phantom_view" >
+           <property name="minimumSize" >
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+          <widget class="QWidget" native="1" name="widget" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout" >
+            <item>
+             <widget class="QGroupBox" name="groupBox" >
+              <property name="title" >
+               <string>Scanner</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout" >
+               <item row="0" column="0" >
+                <widget class="QLabel" name="label" >
+                 <property name="text" >
+                  <string>FOV shift (mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" >
+                <widget class="QLineEdit" name="FOV_shift" >
+                 <property name="maximumSize" >
+                  <size>
+                   <width>200</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>(0,0,0)</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" >
+                <widget class="QLabel" name="label_2" >
+                 <property name="text" >
+                  <string>Min. term size:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2" >
+                <widget class="QLineEdit" name="min_term_size" >
+                 <property name="maximumSize" >
+                  <size>
+                   <width>200</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>0.0001</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" >
+                <widget class="QLabel" name="label_3" >
+                 <property name="text" >
+                  <string>Max. num. terms:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2" >
+                <widget class="QLineEdit" name="max_num_terms" >
+                 <property name="maximumSize" >
+                  <size>
+                   <width>200</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>300</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0" >
+                <widget class="QLabel" name="label_4" >
+                 <property name="text" >
+                  <string>Noise level:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="2" >
+                <widget class="QLineEdit" name="noise_level" >
+                 <property name="maximumSize" >
+                  <size>
+                   <width>200</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text" >
+                  <string>0</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" >
+                <widget class="QLabel" name="label_9" >
+                 <property name="text" >
+                  <string>B1 scale:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2" >
+                <widget class="QLineEdit" name="b1_scale" >
+                 <property name="text" >
+                  <string>1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0" >
+                <widget class="QLabel" name="label_8" >
+                 <property name="text" >
+                  <string>B0 inhom (Hz/mm):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="2" >
+                <widget class="QLineEdit" name="b0_inhomogeneity" >
+                 <property name="text" >
+                  <string>(0,0,0)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_5" >
+              <property name="text" >
+               <string>Real time output directory:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="realtime_output" />
+            </item>
+            <item>
+             <spacer name="verticalSpacer" >
+              <property name="orientation" >
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QTabWidget" name="logwidget" >
+       <property name="tabPosition" >
+        <enum>QTabWidget::South</enum>
+       </property>
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="compile_tab" >
+        <attribute name="title" >
+         <string>Compile</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="STCompileLog" native="1" name="compile_log" />
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="simulate_tab" >
+        <attribute name="title" >
+         <string>Simulate</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_2" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QListWidget" name="simulate_log" />
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>818</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSequence" >
+    <property name="title" >
+     <string>Sequence</string>
+    </property>
+    <addaction name="actionOpenSequence" />
+   </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+    <addaction name="actionConfiguration" />
+   </widget>
+   <widget class="QMenu" name="menuPhantom" >
+    <property name="title" >
+     <string>Phantom</string>
+    </property>
+    <addaction name="actionSelectPhantom" />
+   </widget>
+   <addaction name="menuSequence" />
+   <addaction name="menuPhantom" />
+   <addaction name="menuTools" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QToolBar" name="toolBar" >
+   <property name="windowTitle" >
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionScan" />
+  </widget>
+  <action name="actionOpenSequence" >
+   <property name="text" >
+    <string>Open Sequence...</string>
+   </property>
+  </action>
+  <action name="actionScan" >
+   <property name="text" >
+    <string>Scan</string>
+   </property>
+  </action>
+  <action name="actionConfiguration" >
+   <property name="text" >
+    <string>Configuration...</string>
+   </property>
+  </action>
+  <action name="actionSelectPhantom" >
+   <property name="text" >
+    <string>Select phantom...</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VSSequenceView</class>
+   <extends>QWidget</extends>
+   <header>vssequenceview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VSPhantomView</class>
+   <extends>QWidget</extends>
+   <header>vsphantomview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STCompileLog</class>
+   <extends>QWidget</extends>
+   <header>stcompilelog.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

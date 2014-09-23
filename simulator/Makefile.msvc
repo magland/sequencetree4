@@ -1,0 +1,27 @@
+..\bin\simulator.exe: main.obj foundationclasses.obj customclasses.obj createsequence.obj loadparametersfile.obj st4.obj stsimscanner.obj stsimscannerblocklist.obj
+	link /NOLOGO /INCREMENTAL:NO /SUBSYSTEM:CONSOLE /OUT:..\bin\simulator.exe main.obj foundationclasses.obj customclasses.obj createsequence.obj loadparametersfile.obj st4.obj stsimscanner.obj stsimscannerblocklist.obj
+
+main.obj: main.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." main.cpp
+
+foundationclasses.obj: foundationclasses.cpp foundationclasses.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." foundationclasses.cpp
+
+customclasses.obj: customclasses.cpp foundationclasses.h customclasses.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." customclasses.cpp
+
+createsequence.obj: createsequence.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." createsequence.cpp
+
+loadparametersfile.obj: loadparametersfile.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." loadparametersfile.cpp
+
+st4.obj: ..\code\framework\st4.cpp ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." ..\code\framework\st4.cpp
+
+stsimscanner.obj: stsimscanner.cpp ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." stsimscanner.cpp
+
+stsimscannerblocklist.obj: stsimscannerblocklist.cpp ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	cl -c -nologo -Zm300 -O2 -MD -GR -EHsc -W3 -w34100 -w34189 -DUNICODE -DWIN32 -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"." stsimscannerblocklist.cpp
+

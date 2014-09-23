@@ -1,0 +1,34 @@
+<RCC>
+  <qresource prefix="/" >
+    <file>images/redsquare.bmp</file>
+    <file>images/chainlink.png</file>
+    <file>images/sinc.png</file>
+    <file>images/previous.png</file>
+    <file>images/next.png</file>
+    <file>images/STgui.ico</file>
+    <file>images/STguiDoc.bmp</file>
+    <file>images/STguiDoc.ico</file>
+    <file>images/block.bmp</file>
+    <file>images/vscanner.png</file>
+    <file>images/cross.png</file>
+    <file>images/custom_block.bmp</file>
+    <file>images/custom_loop.bmp</file>
+    <file>images/custom_segment.bmp</file>
+    <file>images/greenball.bmp</file>
+    <file>images/up.PNG</file>
+    <file>images/down.PNG</file>
+    <file>images/loop.bmp</file>
+    <file>images/new.png</file>
+    <file>images/open.png</file>
+    <file>images/redball.bmp</file>
+    <file>images/save.png</file>
+    <file>images/segment.bmp</file>
+    <file>images/selected_block.bmp</file>
+    <file>images/selected_custom_block.bmp</file>
+    <file>images/selected_custom_loop.bmp</file>
+    <file>images/selected_custom_segment.bmp</file>
+    <file>images/selected_loop.bmp</file>
+    <file>images/selected_segment.bmp</file>
+    <file>images/selected_settings.bmp</file>
+  </qresource>
+</RCC>

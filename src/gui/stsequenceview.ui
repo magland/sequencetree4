@@ -1,0 +1,384 @@
+<ui version="4.0" >
+ <class>STSequenceView</class>
+ <widget class="QWidget" name="STSequenceView" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>682</width>
+    <height>561</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="vsplitter2" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="QSplitter" name="hsplitter" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QTabWidget" name="browser_tab" >
+       <property name="tabPosition" >
+        <enum>QTabWidget::South</enum>
+       </property>
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tree_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>239</width>
+          <height>244</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Tree</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="STTreeView" native="1" name="treeview" />
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="classes_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>239</width>
+          <height>244</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Classes</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="STClassView" native="1" name="classview" />
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="global_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>239</width>
+          <height>244</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Global</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_2" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="STGlobalView" native="1" name="globalview" />
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QTabWidget" name="tabWidget" >
+       <property name="tabPosition" >
+        <enum>QTabWidget::West</enum>
+       </property>
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="parameters_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>405</width>
+          <height>263</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Parameters</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QSplitter" name="vsplitter" >
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <widget class="STNodeView" native="1" name="nodeview" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+           <widget class="STSimView" native="1" name="simview" >
+            <property name="minimumSize" >
+             <size>
+              <width>0</width>
+              <height>100</height>
+             </size>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="code_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>405</width>
+          <height>263</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Code</string>
+        </attribute>
+        <layout class="QHBoxLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="STSourceEditor" native="1" name="codeview" />
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="notes_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>405</width>
+          <height>263</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Notes</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QTextEdit" name="notes" />
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="reconstruction_tab" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>405</width>
+          <height>263</height>
+         </rect>
+        </property>
+        <attribute name="title" >
+         <string>Reconstruction</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_3" >
+         <property name="spacing" >
+          <number>0</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QTextEdit" name="reconstruction" />
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QTabWidget" name="logtabwidget" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="whatsThis" >
+       <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">&#xd;
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">&#xd;
+p, li { white-space: pre-wrap; }&#xd;
+&lt;/style>&lt;/head>&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;">&#xd;
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The &lt;span style=" font-weight:600;">Parameters&lt;/span> tab shows the parameters associated with the currently selected node (in the tree view). After the sequence is compiled, the sequence events are displayed in the simulation view. This display is updated in real time as you modify sequence parameters (by double clicking and editing). Green balls indicate which parameters are editable by the user. Red balls indicate which parameters are set programmatically within the sequence.&lt;/p>&lt;/body>&lt;/html></string>
+      </property>
+      <property name="tabPosition" >
+       <enum>QTabWidget::South</enum>
+      </property>
+      <property name="currentIndex" >
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="compile_tab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>676</width>
+         <height>262</height>
+        </rect>
+       </property>
+       <attribute name="title" >
+        <string>Compile</string>
+       </attribute>
+       <layout class="QHBoxLayout" >
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="STCompileLog" name="compile_log" />
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="simulate_tab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>676</width>
+         <height>262</height>
+        </rect>
+       </property>
+       <attribute name="title" >
+        <string>Simulate</string>
+       </attribute>
+       <layout class="QHBoxLayout" >
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QListWidget" name="simulate_log" />
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="events_tab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>676</width>
+         <height>262</height>
+        </rect>
+       </property>
+       <attribute name="title" >
+        <string>Events</string>
+       </attribute>
+       <layout class="QHBoxLayout" >
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="STEventList" native="1" name="event_list" />
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>STGlobalView</class>
+   <extends>QWidget</extends>
+   <header>stglobalview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STNodeView</class>
+   <extends>QWidget</extends>
+   <header>stnodeview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STSimView</class>
+   <extends>QWidget</extends>
+   <header>stsimview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STEventList</class>
+   <extends>QWidget</extends>
+   <header>steventlist.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STCompileLog</class>
+   <extends>QListWidget</extends>
+   <header>stcompilelog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>STTreeView</class>
+   <extends>QWidget</extends>
+   <header>sttreeview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STClassView</class>
+   <extends>QWidget</extends>
+   <header>stclassview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>STSourceEditor</class>
+   <extends>QWidget</extends>
+   <header>stsourceeditor.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

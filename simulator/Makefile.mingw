@@ -1,0 +1,27 @@
+..\bin\simulator.exe: main.o foundationclasses.o customclasses.o createsequence.o loadparametersfile.o st4.o stsimscanner.o stsimscannerblocklist.o
+	g++ -enable-stdcall-fixup -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc -Wl,-s -Wl,-subsystem,console -mthreads -Wl -o ..\bin\simulator.exe main.o foundationclasses.o customclasses.o createsequence.o loadparametersfile.o st4.o stsimscanner.o stsimscannerblocklist.o
+
+main.o: main.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o main.o main.cpp
+
+foundationclasses.o: foundationclasses.cpp foundationclasses.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o foundationclasses.o foundationclasses.cpp
+
+customclasses.o: customclasses.cpp foundationclasses.h customclasses.h createsequence.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o customclasses.o customclasses.cpp
+
+createsequence.o: createsequence.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o createsequence.o createsequence.cpp
+
+loadparametersfile.o: loadparametersfile.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o loadparametersfile.o loadparametersfile.cpp
+
+st4.o: ..\code\framework\st4.cpp ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o st4.o "..\code\framework\st4.cpp"
+
+stsimscanner.o: stsimscanner.cpp ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o stsimscanner.o stsimscanner.cpp
+
+stsimscannerblocklist.o: stsimscannerblocklist.cpp ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
+	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o stsimscannerblocklist.o stsimscannerblocklist.cpp
+	

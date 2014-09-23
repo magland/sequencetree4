@@ -1,0 +1,3617 @@
+#LyX 1.5.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+% DO NOT ALTER THIS PREAMBLE!!!
+%
+%This preamble is designed to ensure that the document prints
+% out as advertised. If you mess with this preamble,
+% parts of the document may not print out as expected.  If you
+% have problems LaTeXing this file, please contact 
+% the documentation team
+% email: lyx-docs@lists.lyx.org
+
+\usepackage{ifpdf} % part of the hyperref bundle
+\ifpdf % if pdflatex is used
+
+ % set fonts for nicer pdf view
+ \IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+
+ % link all cross references and URLs in pdf output
+ \usepackage[colorlinks=true, bookmarks, bookmarksnumbered,
+  bookmarksopen, bookmarksopenlevel=2,
+  linkcolor=black, citecolor=black, urlcolor=blue, filecolor=blue,
+  pdfpagelayout=OneColumn, pdfnewwindow=true,
+  pdfstartview=XYZ, plainpages=false, pdfpagelabels,
+  pdfauthor={LyX Team}, pdftex,
+  pdftitle={Introduction to LyX},pdfsubject={LyX-documentation Intro},
+  pdfkeywords={LyX, documentation}]{hyperref}
+ 
+\else % if dvi or ps is produced
+
+ % link all cross references and URLs in dvi output
+ \usepackage[ps2pdf]{hyperref}
+
+\fi % end if pdflatex is used
+
+ % the pages of the TOC are numbered roman
+ % and a pdf-bookmark for the TOC is added
+ \pagenumbering{roman}
+ \let\myTOC\tableofcontents
+ \renewcommand\tableofcontents{%
+   \pdfbookmark[1]{Contents}{}
+   \myTOC
+   \cleardoublepage
+   \pagenumbering{arabic} }
+
+% redefine the \LyX macro for PDF bookmarks
+\def\LyX{\texorpdfstring{%
+  L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
+  {LyX }}
+\end_preamble
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family sfdefault
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize 10
+\spacing single
+\papersize a4paper
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+SequenceTree4 User's Manual
+\end_layout
+
+\begin_layout Author
+by Jeremy Magland
+\begin_inset Foot
+status collapsed
+
+\begin_layout Standard
+\noindent
+If you have comments, questions, or error corrections, please send them
+ to 
+\family typewriter
+Jeremy.Magland@gmail.com
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Subsection
+What is SequenceTree?
+\end_layout
+
+\begin_layout Standard
+SequenceTree is a pulse sequence programming environment for MRI.
+ You can use it to design, create, visualize, and simulate pulse sequences.
+ Ultimately you can export your sequences to run on a real MRI scanner.
+ SequenceTree and related tools then allow you to view, reconstruct, and
+ process the raw data coming back from the scanner.
+\end_layout
+
+\begin_layout Standard
+SequenceTree is a balance between a what-you-see-is-what-you-get (WYSIWYG)
+ visual user-interface and a fully flexible C++ coding environment.
+ On the one hand, sequence parameters and structure can be changed using
+ simple mouse clicks with the sequence display pane showing changes to the
+ pulses in real time.
+ On the other hand, an integrated C++ coding component provides the user
+ with full control of functionality for all aspects of the pulse sequence,
+ from top level loop nodes down to the lowest level scanner events.
+ All of this takes place in a single graphical user interface -- coding,
+ compilation, debugging, and deploying all occur within a single application.
+\end_layout
+
+\begin_layout Standard
+Whereas SequenceTree is scanner-independent (i.e.
+ it is a stand-alone application with no components specific to a particular
+ brand of MRI scanner), an interface module is available that allows SequenceTre
+e sequences to be exported as Siemens-compatible source code.
+ The exported code can then be compiled just like any research sequence
+ programmed within the Siemens IDEA environment, and the resulting sequence
+ will run on a clinical scanner.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "installation"
+
+\end_inset
+
+Installation
+\end_layout
+
+\begin_layout Standard
+For installation instructions, visit the online resources, including the
+ SequenceTree Wiki: http://www.thesouthpoles.com/sequencetree/wiki.
+\end_layout
+
+\begin_layout Standard
+The easiest and most reliable way to install SequenceTree is to download
+ the latest Windows binary distribution, found at http://code.google.com/p/sequenc
+etree/downloads/list.
+ You will also need to download Qt 4.4 .dll package and extract it to the
+ SequenceTree bin directory (unless you already have Qt 4.4 or later installed
+ on your system).
+ You can find this .dll package at the same website.
+ You should also install MinGW (and add for example c:
+\backslash
+mingw
+\backslash
+bin to your path) in order to compile pulse sequences.
+\end_layout
+
+\begin_layout Standard
+SequenceTree should also run on Linux and Mac, at this time you may need
+ to contact the author for help compiling from source.
+\end_layout
+
+\begin_layout Section
+Navigating the User Interface
+\end_layout
+
+\begin_layout Subsection
+Pulse Sequence Files
+\end_layout
+
+\begin_layout Standard
+Each SequenceTree pulse sequence is stored in a single text file with .sts
+ extension.
+ This file contains all parameter values and C++ code as well as other sequence-
+specific information.
+ Use the file menu to open and save pulse sequence files.
+\end_layout
+
+\begin_layout Subsection
+Web Repository of Sequences
+\end_layout
+
+\begin_layout Standard
+Use the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Open Sequence From Web...
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ option in the file menu to open one of the pulse sequences stored on the
+ Web.
+ You can also store your own sequences on the web using the 
+\series bold
+
+\begin_inset Quotes eld
+\end_inset
+
+Upload Sequence to Web...
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+ option in the file menu.
+\end_layout
+
+\begin_layout Subsection
+Sequence Compilation
+\end_layout
+
+\begin_layout Standard
+When a pulse sequence is first opened, the simulation pane is blank because
+ the sequence has not yet been compiled.
+ Press F9 to compile the sequence.
+ Compilation messages will appear in the 
+\begin_inset Quotes eld
+\end_inset
+
+Compile
+\begin_inset Quotes erd
+\end_inset
+
+ output tab.
+ After compilation, the sequence events will appear in the simulation window.
+ If sequence compilation fails, double click on the error in the Compile
+ tab to go to the relevant source code line.
+ If you need help getting your sequence to compile, contact the author.
+\end_layout
+
+\begin_layout Subsection
+Sequence Simulation
+\end_layout
+
+\begin_layout Standard
+After your sequence has compiled successfully, a plot of sequence events
+ will appear in the simulation window, which is visible when you have selected
+ the 
+\begin_inset Quotes eld
+\end_inset
+
+Parameters
+\begin_inset Quotes erd
+\end_inset
+
+ tab.
+ Use the horizontal scroll bar to scroll through the event blocks.
+ To save space, SequenceTree automatically fills large empty time gaps with
+ gray box time chunks (for lack of a better term).
+ Also, to save simulation time, SequenceTree automatically loads one part
+ of the sequence at a time, so you may notice short delays as you scroll
+ through the sequence during sequence loading.
+ As you change sequence parameters, the simulation pane will update automaticall
+y in real time (no need to recompile).
+ 
+\end_layout
+
+\begin_layout Subsection
+Changing Sequence Parameters
+\end_layout
+
+\begin_layout Standard
+To change a sequence parameter, first click on the tree tab in the left
+ pane.
+ Next select the tree node that you want to modify.
+ Ensure you are viewing the 
+\begin_inset Quotes eld
+\end_inset
+
+Parameters
+\begin_inset Quotes erd
+\end_inset
+
+ tab in the right pane.
+ The parameters for the selected node will appear in the parameter view.
+ When the sequence is compiled, green icons represent 
+\shape italic
+active
+\shape default
+ parameters, or parameters that can be modified by the user (parameters
+ with a red icon are controlled programmatically within the sequence).
+ Double-click on a parameter to change the value.
+ The simulation pane will update immediately to reflect the parameter change.
+\end_layout
+
+\begin_layout Standard
+Note: The units column displays units for parameters for information purposes
+ only.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand label
+name "sub:Global-Parameters"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "global parameters"
+
+\end_inset
+
+Global Parameters
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Quotes eld
+\end_inset
+
+Global
+\begin_inset Quotes erd
+\end_inset
+
+ parameters tab provides a convenient way to extract the most important
+ parameters in your sequence, so other users don't need to search the sequence
+ tree for which parameters to modify.
+ To add a global parameter, right-click a sequence parameter (from the parameter
+ view) and select 
+\begin_inset Quotes eld
+\end_inset
+
+Link to Global Parameter
+\begin_inset Quotes erd
+\end_inset
+
+.
+ You can name the global parameter however you like (it doesn't need to
+ coincide with the actual parameter name).
+ If two sequence parameters are linked to the same global parameter, then
+ they will automatically be linked together (i.e.
+ changes in one will automatically take place in the other).
+ In the 
+\begin_inset Quotes eld
+\end_inset
+
+Global
+\begin_inset Quotes erd
+\end_inset
+
+ tab, you can changed the order of the global parameters using the up/down
+ push buttons.
+\end_layout
+
+\begin_layout Subsection
+Adding Notes
+\end_layout
+
+\begin_layout Standard
+It's a good idea to document the your sequence.
+ Click on the 
+\begin_inset Quotes eld
+\end_inset
+
+Notes
+\begin_inset Quotes erd
+\end_inset
+
+ tab and add text! Describe what the sequence is used for, what the parameters
+ mean, and which parameters should be modified.
+ 
+\end_layout
+
+\begin_layout Subsection
+Custom RF Pulse Shapes
+\end_layout
+
+\begin_layout Standard
+There are two approaches for using custom RF pulse waveforms in SequenceTree:
+ the functional approach, and the sampled approach.
+\end_layout
+
+\begin_layout Standard
+In the 
+\series bold
+functional approach
+\series default
+, you supply a C function that returns the waveform shape (real and imaginary
+ parts):
+\end_layout
+
+\begin_layout Itemize
+Step 1: Right-click on the RF pulse node (usually named RF in the tree),
+ select 
+\begin_inset Quotes eld
+\end_inset
+
+promote node
+\begin_inset Quotes erd
+\end_inset
+
+, and select STSincRF.
+\end_layout
+
+\begin_layout Itemize
+Step 2: Right-click on the RF node once again and select 
+\begin_inset Quotes eld
+\end_inset
+
+Customize node
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Provide a name for new node type, e.g.
+ CustomRF.
+\end_layout
+
+\begin_layout Itemize
+Step 3: Double-click on the RF node to view the C++ code.
+ Modify the pulseShape function to return the shape of your waveform, as
+ in the following example of a Gaussian pulse shape:
+\end_layout
+
+\begin_layout Quote
+void CustomRF::pulseShape(double cycles,double &re,double &im) {
+\end_layout
+
+\begin_deeper
+\begin_layout Quote
+re=exp(-cycles*cycles); 
+\end_layout
+
+\begin_layout Quote
+im=0; 
+\end_layout
+
+\end_deeper
+\begin_layout Quote
+}
+\end_layout
+
+\begin_layout Standard
+As in the STSincRF node type, you can add parameters to your object in order
+ to control the shape of the pulse from the user interface.
+\end_layout
+
+\begin_layout Standard
+The input parameter 
+\begin_inset Quotes eld
+\end_inset
+
+cycles
+\begin_inset Quotes erd
+\end_inset
+
+ is equal to time in seconds multiplied by bandwidth in Hz (so it is dimensionle
+ss), with cycles=0 representing the center of the pulse, or the effective
+ excitation or refocusing time.
+\end_layout
+
+\begin_layout Standard
+If you like, you can set pulse_duration in the prepare() method as a function
+ of bandwidth (as is done in STSincRF).
+ If you do not set pulse_duration, it will remain an active parameter in
+ the user interface (i.e.
+ modifiable by the user).
+ You can also set reference_fraction, representing the fraction of the pulse
+ duration that occurs before the center time (or reference time), or again
+ you can leave it as an active parameter.
+\end_layout
+
+\begin_layout Standard
+In the 
+\series bold
+sampled approach
+\series default
+, you can import a sampled waveform as a resource:
+\end_layout
+
+\begin_layout Itemize
+Step 1: Open MR Pulse Tool from the Tools menu.
+\end_layout
+
+\begin_layout Itemize
+Step 2: Design a pulse and save it to disk.
+\end_layout
+
+\begin_layout Itemize
+Step 3: Import your new RF pulse waveform using the Resources menu.
+ Your pulse will appear as a resource in the tree view.
+\end_layout
+
+\begin_layout Itemize
+Step 4: Right-click on your RF pulse node, select 
+\begin_inset Quotes eld
+\end_inset
+
+Promote node
+\begin_inset Quotes erd
+\end_inset
+
+, and choose STSampledRF
+\end_layout
+
+\begin_layout Itemize
+Step 5: Set the pulse_shape parameter of the RF pulse node to the name of
+ your RF pulse resource, e.g.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+mypulse.mrp
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Step 6: Compile your sequence.
+ Your sampled pulse should appear in the simulation.
+\end_layout
+
+\begin_layout Standard
+Note that it is important that your imported pulse has the correct bandwidth
+ value (for reference purposes) so that SequenceTree can scale (in time)
+ your pulse appropriately according to the prescribed bandwidth for the
+ pulse sequence.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand label
+name "sub:Working-with-Resources"
+
+\end_inset
+
+Working with 
+\begin_inset LatexCommand index
+name "resources"
+
+\end_inset
+
+Resources
+\end_layout
+
+\begin_layout Standard
+For the purpose of storing arrays of data (e.g.
+ RF pulse waveforms or phase cycling tables), SequenceTree sequences can
+ contain resources.
+ These are displayed under the 
+\begin_inset Quotes eld
+\end_inset
+
+Resources
+\begin_inset Quotes erd
+\end_inset
+
+ node of the tree view (note: this node does not appear when the sequence
+ has no resources).
+ Use the Resource menu to add a new resource or import an RF pulse shape
+ resource.
+\end_layout
+
+\begin_layout Standard
+To edit a resource, double click on the resource node.
+\end_layout
+
+\begin_layout Standard
+Resources can be accessed from within the C++ code (see Section 
+\begin_inset LatexCommand ref
+reference "sub:Resources"
+
+\end_inset
+
+).
+ For an example of using resources, see STSampledRF.cpp in code/nodetypes/foundat
+ion.
+\end_layout
+
+\begin_layout Section
+SequenceTree Concepts
+\end_layout
+
+\begin_layout Subsection
+Hierarchical Sequence Structure
+\end_layout
+
+\begin_layout Standard
+A SequenceTree sequence consists of a hierarchy of nodes.
+ To each node is associated the following data:
+\end_layout
+
+\begin_layout Itemize
+Node name
+\end_layout
+
+\begin_layout Itemize
+Node type (name of C++ class)
+\end_layout
+
+\begin_layout Itemize
+List of child nodes (a.k.a.
+ children)
+\end_layout
+
+\begin_layout Itemize
+List of parameters
+\end_layout
+
+\begin_layout Standard
+Every sequence contains a single 
+\shape italic
+
+\begin_inset LatexCommand index
+name "root node"
+
+\end_inset
+
+Root
+\shape default
+ node at the top of the tree.
+ The children of the Root are 
+\shape italic
+
+\begin_inset LatexCommand index
+name "loop node"
+
+\end_inset
+
+Loop
+\shape default
+ nodes, controlling the looping or iterative structure of the sequence (the
+ C++ type of a Loop node inherits 
+\shape italic
+STLoop
+\shape default
+).
+ The immediate children of a Loop node are 
+\shape italic
+
+\begin_inset LatexCommand index
+name "block node"
+
+\end_inset
+
+Block
+\shape default
+ nodes, representing single event blocks (often single repetitions) in the
+ pulse sequence (the C++ type of a Block node inherits 
+\shape italic
+STChain
+\shape default
+).
+ The children of a Block node are so-called 
+\shape italic
+
+\begin_inset LatexCommand index
+name "segment node"
+
+\end_inset
+
+Segment
+\shape default
+ nodes, representing a collection of possibly overlapping scanner events.
+ For example, in the spoiled gradient echo example (spgr.sts), the Block
+ node contains three segments (child nodes) named 'Excite', 'Acquire', and
+ 'Rewind' (see Figure 
+\begin_inset LatexCommand ref
+reference "fig:spgr-diagram"
+
+\end_inset
+
+).
+ The Excite node has the functionality of the excitation pulse, including
+ a prephasing gradient (Prephase), a slice select gradient (SliceGradient)
+ and a RF pulse (RF).
+ Similarly, the Acquire node has the functionality of reading a single line
+ of k-space, including phase encoding (Encode), a readout gradient (ReadoutGradi
+ent), and the readout event itself (Readout).
+ Finally, the Rewind node is in charge of rewinding all imaging gradients
+ and applying an optional spoiler gradient at the end of each repetition.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename manual-fig-spgr-diagram.jpg
+	width 3in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:spgr-diagram"
+
+\end_inset
+
+Hierarchical sequence structure for spoiled gradient echo example sequence
+ (spgr.sts).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename manual-fig-spgr-events.jpg
+	width 4in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:spgr-event-block"
+
+\end_inset
+
+A single repetition in the balanced gradient echo example sequence (spgr.sts).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "parent/child communication"
+
+\end_inset
+
+Parent/Child Communication
+\end_layout
+
+\begin_layout Standard
+All functionality in a SequenceTree pulse sequence is implemented via parent/chi
+ld communication between nodes.
+ It is important for the programmer to understand the nature of this communicati
+on.
+ Here are some basic principles of parent/child communication:
+\end_layout
+
+\begin_layout Itemize
+Parents can access and modify the parameters of their children, grandchildren,
+ etc.
+ This is usually done within the prepare() method of a block or segment,
+ or within the loopRun() method of a loop.
+\end_layout
+
+\begin_layout Itemize
+Children should 
+\shape italic
+not
+\shape default
+ modify (or even use) the values of the parameters of their parents, grandparent
+s, etc.
+ The one exception to this rule is that nodes sometimes need to modify the
+ parameters of the Root node (for example to implement a global phase shift,
+ or field-of-view shift during the sequence).
+\end_layout
+
+\begin_layout Itemize
+Each node parameter is either 
+\shape italic
+
+\begin_inset LatexCommand index
+name "active parameter"
+
+\end_inset
+
+active
+\shape default
+ or 
+\begin_inset LatexCommand index
+name "passive parameter"
+
+\end_inset
+
+
+\shape italic
+passive
+\shape default
+.
+ 
+\shape italic
+Active
+\shape default
+ means that the user is free to modify the value of the parameter from within
+ the parameter view of the user interface (active parameters are marked
+ with a green icon).
+ On the other hand, 
+\shape italic
+passive
+\shape default
+ parameters (marked with a red icon) cannot be set by the user because they
+ are modified programatically during the sequence, either by the node itself,
+ or by a parent node, grandparent node, etc.
+ SequenceTree automatically detects which parameters are active.
+\end_layout
+
+\begin_layout Itemize
+Anytime a parameter is modified during the sequence, that parameter, as
+ well as the corresponding node (and all of its ancestor nodes), are automatical
+ly marked as having been modified.
+ This will signal the SequenceTree framework to call the prepare() method
+ for the modified nodes are run (e.g.
+ sent to the scanner).
+ After prepare() is executed, the modification state is reset.
+\end_layout
+
+\begin_layout Standard
+As an example of parent/child node communication, consider the spoiled gradient
+ echo example.
+ The loop node steps through a list of phase encode steps (e.g.
+ PE1=-64 up to +63 in increments of 1).
+ For each step, the loop node communicates with its child (Block) by setting
+\end_layout
+
+\begin_layout Quote
+Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2;
+\end_layout
+
+\begin_layout Standard
+specifying the desired location of kspace.
+ Here 
+\shape italic
+PE1_dir=[0,1,0]
+\shape default
+ is a vector representing the direction of phase encoding, and 
+\shape italic
+PE2=0
+\shape default
+ (for 2D imaging).
+ The Block then passes this information on to its children in the prepare()
+ method:
+\end_layout
+
+\begin_layout Quote
+Acquire->echo_moment=sequence()->kspace2moment(kspace_echo).
+\end_layout
+
+\begin_layout Standard
+Here, 
+\shape italic
+
+\begin_inset LatexCommand index
+name "kspace2moment()"
+
+\end_inset
+
+sequence()->kspace2moment()
+\shape default
+ is a built-in function that converts kspace locations to units of 
+\begin_inset Formula $[\mu T/mm]\cdot\mu s$
+\end_inset
+
+ according to the prescribed field of view.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "parameters"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "node parameters"
+
+\end_inset
+
+Node Parameters
+\end_layout
+
+\begin_layout Standard
+The functionality of a node (as implemented in the corresponding C++ code)
+ depends on the values of the node's parameters.
+ Within the user interface, each node parameter has the following data:
+\end_layout
+
+\begin_layout Itemize
+Type - 
+\begin_inset LatexCommand index
+name "STInteger"
+
+\end_inset
+
+STInteger, 
+\begin_inset LatexCommand index
+name "STReal"
+
+\end_inset
+
+STReal, 
+\begin_inset LatexCommand index
+name "STVector3"
+
+\end_inset
+
+STVector3, or 
+\begin_inset LatexCommand index
+name "STIterator"
+
+\end_inset
+
+STIterator
+\end_layout
+
+\begin_layout Itemize
+Name - name of the parameter
+\end_layout
+
+\begin_layout Itemize
+Value - a string representation of the parameter value
+\end_layout
+
+\begin_layout Itemize
+\begin_inset LatexCommand index
+name "parameter units"
+
+\end_inset
+
+Units - for information purposes only
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "customizing nodes"
+
+\end_inset
+
+Customizing Nodes
+\end_layout
+
+\begin_layout Standard
+There are three kinds of node types in a SequenceTree sequence: 
+\begin_inset LatexCommand index
+name "foundation node types"
+
+\end_inset
+
+foundation node types, 
+\begin_inset LatexCommand index
+name "user node types"
+
+\end_inset
+
+user node types, and 
+\begin_inset LatexCommand index
+name "custom node types"
+
+\end_inset
+
+custom node types.
+ The C++ code for foundation and user node types can be viewed but not modified
+ from within SequenceTree (the code for these types can be found in the
+ code/nodetypes/user and code/nodetypes/foundation directories).
+ On the other hand, the C++ code for custom node types can be modified from
+ within SequenceTree (double-click on the node to edit the code).
+ Nodes with foundation, user, and custom node types are called foundation,
+ user, and custom nodes, respectively [Please excuse the somewhat trivial
+ statement].
+ Foundation and user nodes can be distinuished from custom nodes in the
+ tree view according to the node icons.
+\end_layout
+
+\begin_layout Standard
+If you need to modify the functionality of a foundation node, you will first
+ need to customize it.
+ Right-click on the node and select 
+\begin_inset Quotes eld
+\end_inset
+
+Customize Node
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Note that you must first customize the parent node.
+ It is highly encouraged that you only customize nodes toward the top of
+ the tree, such as Loop and Block nodes.
+ This is because the code for low-level nodes is subject to slight modifications
+ in the framework over time, thus they should remain foundation node types
+ whenever possible.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "iterators"
+
+\end_inset
+
+Iterators
+\end_layout
+
+\begin_layout Standard
+The looping or iterative functionality of a SequenceTree sequence is accomplishe
+d using iterators in Loop nodes (as mentioned above, Loop nodes are the
+ immediate children of the sequence's Root node).
+ An iterator is simply a parameter of type 
+\shape italic
+STIterator
+\shape default
+, consisting of minimum/maximum values and a step size (or increment).
+ When such a parameter is present in a Loop node, SequenceTree will automaticall
+y step through the values of the iterator one by one during sequence execution,
+ calling the loopRun() method at each step.
+ The code within loopRun() is responsible for setting the parameters of
+ its children appropriately, and then calling the run() method of each child
+ at the desired times.
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand index
+name "nested iteration"
+
+\end_inset
+
+Nested iteration is accomplished by including multiple iterator parameters
+ within a single Loop node.
+ The top-most iterator is always the inner-most nested loop (i.e.
+ the fastest moving).
+ Modification of the nesting order of the iterators can be easily accomplished
+ by simply reording the iterator parameters in the class code.
+\end_layout
+
+\begin_layout Subsection
+Linking Nodes
+\end_layout
+
+\begin_layout Standard
+For convenience, multiple nodes can be linked together in the user interface.
+ This is useful for implementing preparation repetitions.
+ For example, in the spoiled gradient echo example (spgr.sts), the Block
+ of the PrepLoop is linked to the Block of the MainLoop.
+ Therefore, whenever a parameter of either Block (or their descendents)
+ is modified by the user, the same change takes place in the linked Block.
+ It's a way to synchronize the parameters of nodes.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+To link two nodes, select the first node, hold down the control button,
+ and left-click the second node.
+\end_layout
+
+\begin_layout Standard
+To unlink nodes, right-click on the nodes and select 
+\begin_inset Quotes eld
+\end_inset
+
+unlink node
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Promoting Nodes
+\end_layout
+
+\begin_layout Section
+Programming Tutorials
+\end_layout
+
+\begin_layout Subsection
+Change sequence parameters
+\end_layout
+
+\begin_layout Enumerate
+Open sequence: File->open, c:
+\backslash
+st-4.1.10-standalone
+\backslash
+sequences
+\backslash
+spgr.sts 
+\end_layout
+
+\begin_layout Enumerate
+Compile the sequence by clicking the ‘Compile’ button 
+\end_layout
+
+\begin_layout Enumerate
+Scroll through the sequence event blocks using the scroll bar in the simulation
+ view 
+\end_layout
+
+\begin_layout Enumerate
+Click on the ‘tree’ tab Expand the tree to MainLoop->Block->Acquire->Readout
+ 
+\end_layout
+
+\begin_layout Enumerate
+Change the number of readout points by double-clicking on the ‘N’ parameter
+ and entering ‘128’ 
+\end_layout
+
+\begin_layout Enumerate
+Minimize the echo time by selecting the MainLoop->Block node, right-clicking
+ the TE parameter, and selecting ‘Minimize Parameter’ (Warning: if this
+ causes a sequence error, increment echo time until the error disappears)
+\end_layout
+
+\begin_layout Enumerate
+Change TR by double-clicking the TR parameter and entering ‘20000’ 
+\end_layout
+
+\begin_layout Enumerate
+Change the number of phase encodes by selecting the MainLoop node, double-clicki
+ng the PE1 parameter, and entering ‘-64:1:63’
+\end_layout
+
+\begin_layout Enumerate
+Change the spoiler moment using the moment parameter of MainLoop->Block->Rewind
+ 
+\end_layout
+
+\begin_layout Enumerate
+Experiment by modifying any sequence parameter that has a green icon, or
+ try modifying the parameters in the ‘Global’ tab.
+ 
+\end_layout
+
+\begin_layout Subsection
+Switch between selective and non-selective excitation pulse
+\end_layout
+
+\begin_layout Enumerate
+Open the sequence used in the previous example 
+\end_layout
+
+\begin_layout Enumerate
+Change the RF pulse shape by right-clicking the MainLoop->Block->Excite->RF
+ node and selecting ‘Promote node…’.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Choose STRF for a simple rectangular pulse.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Do the same for the PrepLoop->Block->Excite->RF node.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Recompile using the ‘compile’ button Make the pulse non-selective by modifying
+ the following parameters of MainLoop->Block->Excite:
+\newline
+gradient_amplitude=(0,0,0)
+\newline
+s
+lice_thickness=0 
+\end_layout
+
+\begin_layout Enumerate
+Set the duration of the rectangular pulse using the pulse_duration parameter
+ of MainLoop->Block->Excite->RF.
+ 
+\end_layout
+
+\begin_layout Subsection
+Create a spin-echo sequence with phase encoding before the refocusing pulse
+\end_layout
+
+\begin_layout Enumerate
+Open sequence: File->open, c:
+\backslash
+st-4.1.10-standalone
+\backslash
+sequences
+\backslash
+spgr.sts 
+\end_layout
+
+\begin_layout Enumerate
+Save sequence as spin-echo.sts 
+\end_layout
+
+\begin_layout Enumerate
+Remove the preparation repetitions by right-clicking on PrepLoop and selecting
+ ‘Delete Node’ 
+\end_layout
+
+\begin_layout Enumerate
+Customize the loop node by right-clicking on MainLoop and selecting ‘Customize
+ node’.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Enter SpinEchoLoop for the class name.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Create a spin echo by right-clicking on MainLoop->Block and selecting ‘Change
+ node type’.
+ Then choose STSpinEchoBlock.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Compile the sequence by clicking the ‘compile’ button.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Increase TE to 12000 to remove the sequence errors.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Customize the block by right-clicking on MainLoop->Block and selecting ‘Customiz
+e node’.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Edit the code for the block by double-clicking the MainLoop->Block node
+ 
+\end_layout
+
+\begin_layout Enumerate
+Add the following line of code before ‘ST_CHILD(STRefocus,Refocus)’: 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+ST_CHILD(STEncode, Encode) 
+\end_layout
+
+\begin_layout Enumerate
+Add the following line before ‘return STChain::prepare();’: 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+Encode->moment=sequence()->kspace2moment(kspace_echo)*(-1);
+\end_layout
+
+\begin_layout Enumerate
+Recompile 
+\end_layout
+
+\begin_layout Subsection
+Implement 3D scanning and switch the order of the phase encoding
+\end_layout
+
+\begin_layout Enumerate
+Open sequence: File->open, c:
+\backslash
+st-4.1.10-standalone
+\backslash
+sequences
+\backslash
+spgr.sts 
+\end_layout
+
+\begin_layout Enumerate
+Save the sequence as spgr-avg.sts 
+\end_layout
+
+\begin_layout Enumerate
+Add 3D phase encoding by setting PE2 parameter in MainLoop to ‘-4:1:3’ 
+\end_layout
+
+\begin_layout Enumerate
+To switch the order of phase encoding you first need to customize the MainLoop
+ (right-click on the main loop and select ‘Customize node’) 
+\end_layout
+
+\begin_layout Enumerate
+Edit the code for the main loop by double-clicking the MainLoop node 
+\end_layout
+
+\begin_layout Enumerate
+Swap the following two lines of code using copy-paste 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+ST_PARAMETER(STIterator,PE1,0:1:0,) 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+ST_PARAMETER(STIterator,PE2,0:1:0,) 
+\end_layout
+
+\begin_layout Enumerate
+Recompile and that’s it! Note that the order in which STIterator parameters
+ are specified in the loop determines the nesting order of the iteration.
+ 
+\end_layout
+
+\begin_layout Subsection
+Implement ‘Averaging’ in a Basic Sequence
+\end_layout
+
+\begin_layout Enumerate
+Open sequence: File->open, c:
+\backslash
+st-4.1.10-standalone
+\backslash
+sequences
+\backslash
+spgr.sts 
+\end_layout
+
+\begin_layout Enumerate
+To add averaging, you first need to customize the MainLoop (right-click
+ on the main loop and select ‘Customize node’) 
+\end_layout
+
+\begin_layout Enumerate
+Edit the code for the main loop by double-clicking the MainLoop node Add
+ the following line of code after the existing iterator parameters 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+ST_PARAMETER(STIterator,AVG,1:1:1,) 
+\end_layout
+
+\begin_layout Enumerate
+Recompile and that’s it! Click on the parameter tab and change the ‘AVG’
+ parameter to ‘1:1:10’ for ten averages.
+ 
+\end_layout
+
+\begin_layout Subsection
+Create a sequence from ‘scratch’ and add preparation repetitions
+\end_layout
+
+\begin_layout Enumerate
+Create new sequence: File->new 
+\end_layout
+
+\begin_layout Enumerate
+Add a loop node by right-clicking on the Root node and selecting ‘Add Loop’,
+ choose STCartesianLoop and name it ‘MainLoop’.
+ Then compile.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Customize your sequence according to your application (see other examples)
+ 
+\end_layout
+
+\begin_layout Enumerate
+Insert a loop for prep.
+ reps.
+ by right-clicking on MainLoop and selecting ‘Insert Loop’.
+ Be sure to choose the same node type as MainLoop, and name the new node
+ ‘PrepLoop’.
+ Then recompile.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Link the block nodes between the MainLoop and PrepLoop by selecting MainLoop->Bl
+ock, Holding down the [Ctrl] key, and left-clicking PrepLoop->Block.This
+ synchronizes parameters between the blocks.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Specify the number of preparation repetitions by modifying the parameters
+ of the PrepLoop node.
+ 
+\end_layout
+
+\begin_layout Subsection
+Implement centric-ordered phase encoding
+\end_layout
+
+\begin_layout Enumerate
+Open sequence: File->open, c:
+\backslash
+st-4.1.10-standalone
+\backslash
+sequences
+\backslash
+spgr.sts and save sequence as spgr-centric.sts 
+\end_layout
+
+\begin_layout Enumerate
+Customize the loop node by right-clicking on MainLoop and selecting ‘Customize
+ node’.
+ Enter CentricLoop for the class name.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Edit the code by double-clicking the MainLoop->Block node Replace the loopRun()
+ function with the following code:
+\newline
+bool CentricLoop::loopRun() { 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+int iPE1=(int)PE1; 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+int pe1=0; 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+if (iPE1%2==0) pe1=-iPE1/2; 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+else pe1=(iPE1+1)/2; 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+Block->kspace_echo=PE1_dir*pe1+PE2_dir*PE2; 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+Block->setReadoutIndex(0,pe1+PE1.numSteps()/2); 
+\newline
+
+\begin_inset Formula $\;\;\;$
+\end_inset
+
+return Block->run();
+\newline
+}
+\end_layout
+
+\begin_layout Enumerate
+Finally, change the PE1 parameter to ‘0:1:127’ (for 128 lines) 
+\end_layout
+
+\begin_layout Section
+Programmer's Reference
+\end_layout
+
+\begin_layout Subsection
+SequenceTree Macros
+\end_layout
+
+\begin_layout Standard
+SequenceTree Macros are critical for communicating information about node
+ types to the user interface, so that parameters and parent/child relationships
+ can be displayed properly even before sequence compilation.
+ These macros must be included in the C++ source file for each node type.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_CLASS"
+
+\end_inset
+
+ST_CLASS([Class name], [Base class name])
+\series default
+ - This macro must be included within the constructor of each SequenceTree
+ class.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_PARAMETER"
+
+\end_inset
+
+ST_PARAMETER([Type], [Name], [Default value], [Units])
+\series default
+ - define a parameter.
+ Include within the constructor.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_CHILD"
+
+\end_inset
+
+ST_CHILD([Type], [Name])
+\series default
+ - define a child.
+ Include within the constructor.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_DEFAULT"
+
+\end_inset
+
+ST_DEFAULT([Parameter], [Value])
+\series default
+ - set a default value for a parameter of a child or descendent node.
+ Include within the constructor.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_ALIGN"
+
+\end_inset
+
+ST_ALIGN([Child name], [Alignment type], [Time offset], [Relative child
+ index])
+\series default
+ - set the alignment of a child of a 
+\shape italic
+STChain
+\shape default
+ node.
+ Include within prepare() method.
+ See Section 
+\begin_inset LatexCommand ref
+reference "sub:Block-node-implementation"
+
+\end_inset
+
+ for more information.
+\end_layout
+
+\begin_layout Standard
+Note that in the C++ header file of each node type, there is a section marked
+ 
+\begin_inset Quotes eld
+\end_inset
+
+this section generated by SequenceTree -- do not edit
+\begin_inset Quotes erd
+\end_inset
+
+.
+ SequenceTree uses this section to automatically generate class variables
+ corresponding to parameters and children defined using the ST_PARAMETER
+ and ST_CHILD macros in the source file.
+ Any edits to this section will be discarded.
+\end_layout
+
+\begin_layout Subsection
+Access to parameters and children
+\end_layout
+
+\begin_layout Standard
+By examining the header files of SequenceTree node types (recall that all
+ node types are standard C++ classes), one can see that all node parameters
+ and children are simply member variables of the class.
+ Parameters of type 
+\begin_inset LatexCommand index
+name "STReal"
+
+\end_inset
+
+STReal and 
+\begin_inset LatexCommand index
+name "STInteger"
+
+\end_inset
+
+STInteger can, for the most part, be treated like C++ types, double and
+ int respectively.
+ Parameters of type 
+\begin_inset LatexCommand index
+name "STIterator"
+
+\end_inset
+
+STIterator can also be accessed as a double floating point value in the
+ standard manner, where the value represents the current value of the iterator
+ at a particular time in the sequence.
+ The minimum, maximum, and increment information for an iterator can also
+ be accessed using the 
+\begin_inset LatexCommand index
+name "minimum()"
+
+\end_inset
+
+minimum(), 
+\begin_inset LatexCommand index
+name "maximum()"
+
+\end_inset
+
+maximum(), and 
+\begin_inset LatexCommand index
+name "step()"
+
+\end_inset
+
+step() methods.
+\end_layout
+
+\begin_layout Standard
+Note that children are pointer member variables, whereas parameters are
+ standard member variables.
+ For example, the flip angle of the RF pulse in an object of type STGradientEcho
+Block can be accessed from within the block using the following notation:
+\end_layout
+
+\begin_layout Quote
+double phi = Excite->RF->flip_angle;
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand label
+name "sub:Loop-node-implementation"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "loop node"
+
+\end_inset
+
+Loop node implementation
+\end_layout
+
+\begin_layout Standard
+The following methods can be overloaded in the implementation of a loop
+ node (base class STLoop).
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+prepare()
+\series default
+ method is called at the beginning of the sequence.
+ One-time initialization of variables, parameters, and parameters of child
+ and descendent nodes should occur within this function.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+loopRun()
+\series default
+ method is called at each step of the iterators.
+ Within this function, parameters of child and descendent nodes should be
+ set according to the current iterator state, and the run() method of each
+ child should be called at the appropriate times.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand label
+name "sub:Block-node-implementation"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "block node"
+
+\end_inset
+
+Block node implementation
+\end_layout
+
+\begin_layout Standard
+The following methods can be overloaded in the implementation of a block
+ node (base class STChain).
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+initialize()
+\series default
+ method is called at the beginning of the sequence.
+ One-time initialization of variables, parameters, and parameters of child
+ and descendent nodes should occur within this function.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+prepare()
+\series default
+ method is called immediately before the block is run whenever a parameter
+ of this node, a child node, or a descendent node has been modified.
+ In this function, the parameters of child nodes should be set, the alignment
+ of child nodes should be set, and finally STChain::prepare() should be
+ called.
+\end_layout
+
+\begin_layout Standard
+For nodes types that inherit STChain, the 
+\series bold
+ST_ALIGN
+\series default
+ macro is used to set the timing for the children.
+ The syntax for this macro is:
+\series bold
+ 
+\end_layout
+
+\begin_layout Quote
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_ALIGN"
+
+\end_inset
+
+ST_ALIGN([Child name], [Alignment type], [Time offset], [Relative child
+ index])
+\end_layout
+
+\begin_layout Standard
+The alignment type can be one of the following values: 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_ALIGN\\_LEFT"
+
+\end_inset
+
+ST_ALIGN_LEFT (default)
+\series default
+ - Align this child as far to the left as possible, without overlapping
+ the previous child or the beginning of the block.
+ Then offset the start time by 
+\begin_inset Quotes eld
+\end_inset
+
+Time offset
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_ALIGN\\_RIGHT"
+
+\end_inset
+
+ST_ALIGN_RIGHT
+\series default
+ - Align this child as far to the right as possible, without overlapping
+ the next child or the end of the block.
+ Then offset the start time by 
+\begin_inset Quotes eld
+\end_inset
+
+Time offset
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_ALIGN\\_RELATIVE"
+
+\end_inset
+
+ST_ALIGN_RELATIVE
+\series default
+ - Align this child relative to the child at (zero-based) index 
+\begin_inset Quotes eld
+\end_inset
+
+Relative child index
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Time offset represents the time between the reference time of the relative
+ child and the reference time of this child (see description of referenceTime()
+ below).
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "ST\\_ALIGN\\_ABSOLUTE"
+
+\end_inset
+
+ST_ALIGN_ABSOLUTE
+\series default
+ - The reference time of this child will occur at 
+\begin_inset Quotes eld
+\end_inset
+
+Time offset
+\begin_inset Quotes erd
+\end_inset
+
+ relative to the beginning of this block.
+\end_layout
+
+\begin_layout Standard
+Note that the 
+\begin_inset Quotes eld
+\end_inset
+
+Relative child index
+\begin_inset Quotes erd
+\end_inset
+
+ parameter is only relevant for the ST_ALIGN_RELATIVE alignment type.
+\end_layout
+
+\begin_layout Standard
+Each child has a reference time, representing the relevant time for that
+ child.
+ For example, the reference time for the Excite segment usually occurs at
+ the peak of the RF excitation pulse.
+ Similarly, the reference time for the Acquire segment occurs at the 
+\shape italic
+echo time
+\shape default
+ of the readout.
+ These reference times can be accessed programmatically using, for example,
+ 
+\begin_inset LatexCommand index
+name "referenceTime()"
+
+\end_inset
+
+RF->startTime()+RF->referenceTime().
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "RF pulse implementation"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sub:RF-Pulse-implementation"
+
+\end_inset
+
+RF Pulse implementation
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "segment node"
+
+\end_inset
+
+Segment node implementation
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+Note: 
+\series default
+The vast majority of code modifications should occur for Loop nodes, Block
+ nodes, and RF pulse nodes (see Sections 
+\begin_inset LatexCommand ref
+reference "sub:Loop-node-implementation"
+
+\end_inset
+
+, 
+\begin_inset LatexCommand ref
+reference "sub:Block-node-implementation"
+
+\end_inset
+
+, and 
+\begin_inset LatexCommand ref
+reference "sub:RF-Pulse-implementation"
+
+\end_inset
+
+).
+ However, it is sometimes necessary to customize a different type of node,
+ although this should be avoided whenever possible.
+\end_layout
+
+\begin_layout Standard
+The relative start times of the child nodes can be accessed using 
+\begin_inset LatexCommand index
+name "relativeStartTime()"
+
+\end_inset
+
+child(j)->relativeStartTime(), and set using 
+\begin_inset LatexCommand index
+name "setRelativeStartTime"
+
+\end_inset
+
+child(j)->setRelativeStartTime(double).
+\end_layout
+
+\begin_layout Standard
+The following methods can be overloaded in a segment node.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "initialize()"
+
+\end_inset
+
+initialize()
+\series default
+ method is called at the beginning of the sequence.
+ One-time initialization of variables, parameters, and parameters of child
+ and descendent nodes should occur within this function.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "prepare()"
+
+\end_inset
+
+prepare()
+\series default
+ method is called immediately before the segment is run whenever a parameter
+ of this node, a child node, or a descendent node has been modified.
+ In this function, the parameters of child nodes should be set, and 
+\shape italic
+setModified(false)
+\shape default
+ should be called in order to reset the modification state.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "run()"
+
+\end_inset
+
+run()
+\series default
+ method is called when the segment is to be run.
+ In the default implementation, run() is called for each child node.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "duration()"
+
+\end_inset
+
+duration()
+\series default
+ method must return the duration (in microseconds) of the segment.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "SAR()"
+
+\end_inset
+
+SAR()
+\series default
+ method must return the energy of the segment.
+ In the default implementation, it returns the sum of SAR() for the children.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "referenceTime()"
+
+\end_inset
+
+referenceTime()
+\series default
+ method must return the reference time of the segment in microseconds (relative
+ to the start time of the segment).
+ This information is used by STChain objects to set relative alignments.
+ In the default implementation this function returns child(ind)->relativeStartTi
+me()+child(ind)->referenceTime(), where 
+\begin_inset LatexCommand index
+name "referenceChildIndex()"
+
+\end_inset
+
+ind=referenceChildIndex().
+ The reference child index can be set using 
+\begin_inset LatexCommand index
+name "setReferenceChildIndex()"
+
+\end_inset
+
+setReferenceChildIndex(int).
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "terminalMoment()"
+
+\end_inset
+
+terminalMoment()
+\series default
+ method must return the 3D moment at the end of this segment as a function
+ of the moment at the start of the segment, as given by 
+\begin_inset LatexCommand index
+name "initialMoment()"
+
+\end_inset
+
+initialMoment().
+ This information is used by SequenceTree to keep track of the k-space location
+ in order to automatically prephase or rewind gradients appropriately.
+ For example, a segment consisting purely of gradients should return initialMome
+nt()+M, where M is the total gradient moment in the segment, whereas a segment
+ containing an a refocusing RF pulse should return -initialMoment()-M1+M2,
+ where M1 and M2 are the gradient moments occuring before and after the
+ refocusing time respectively.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "totalGradientMoment()"
+
+\end_inset
+
+totalGradientMoment()
+\series default
+ method should return the total 3D moment of the gradients in the segment,
+ ignoring RF pulses.
+ This information is used by SequenceTree to implement automatic FOV shifts.
+ In the default implementation, it returns the sum of totalGradientMoment
+ for the children.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+
+\begin_inset LatexCommand index
+name "gradientStartTimes()"
+
+\end_inset
+
+gradientStartTimes()
+\series default
+ and 
+\series bold
+
+\begin_inset LatexCommand index
+name "gradientEndTimes()"
+
+\end_inset
+
+gradientEndTimes()
+\series default
+ must return the 3D gradient start and end times in microseconds (relative
+ to the start time of the segment).
+ This information is used by STChain objects to achieve optimal alignments.
+ Note that RF pulse and readout events should never overlap with external
+ segments.
+ Therefore, gradientStartTimes() should never exceed the start time of RF
+ pulses and readout events.
+ Similarly, gradientEndTimes() should never occur before the end time of
+ RF pulses or readout events in the segment.
+\end_layout
+
+\begin_layout Subsection
+Access to 
+\begin_inset LatexCommand index
+name "root node"
+
+\end_inset
+
+Root Node
+\end_layout
+
+\begin_layout Standard
+The root node of the sequence can be accessed in the code of any node using
+ the 
+\series bold
+
+\begin_inset LatexCommand index
+name "sequence()"
+
+\end_inset
+
+sequence()
+\series default
+ function.
+ This is useful for offsetting the global transmit/receive phase during
+ the sequence (e.g.
+ for RF spoiling), for shifting the field-of-view (e.g.
+ for multi-slicing), or for accessing special functions associated with
+ the root node (e.g.
+ sequence()->kspace2moment()).
+ For example, the following code can be found in the loop node of spgr.sts
+ (note that 
+\shape italic
+phase_shift
+\shape default
+ is a parameter of the root node).
+\end_layout
+
+\begin_layout Quote
+bool SPGRLoop::loopRun() {
+\end_layout
+
+\begin_deeper
+\begin_layout Quote
+if (RF_spoiling) { 
+\end_layout
+
+\begin_deeper
+\begin_layout Quote
+sequence()->phase_shift=rand()%360; 
+\end_layout
+
+\end_deeper
+\begin_layout Quote
+} 
+\end_layout
+
+\begin_layout Quote
+Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2; 
+\end_layout
+
+\begin_layout Quote
+return Block->run(); 
+\end_layout
+
+\end_deeper
+\begin_layout Quote
+}
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand label
+name "sub:Resources"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "resources"
+
+\end_inset
+
+Resources
+\end_layout
+
+\begin_layout Standard
+For the purpose of storing arrays of data (e.g.
+ RF pulse waveforms or phase cycling tables), SequenceTree sequences can
+ contain resources.
+ These are displayed under the 
+\begin_inset Quotes eld
+\end_inset
+
+Resources
+\begin_inset Quotes erd
+\end_inset
+
+ node of the tree view (note: this node does not appear when the sequence
+ has no resources).
+ For information about working with resources in the user interface, see
+ Section 
+\begin_inset LatexCommand ref
+reference "sub:Working-with-Resources"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To access a resource within C++ code, use the following notation:
+\end_layout
+
+\begin_layout Quote
+STResource *R=sequence()->
+\begin_inset LatexCommand index
+name "resource()"
+
+\end_inset
+
+resource(
+\begin_inset Quotes eld
+\end_inset
+
+resource_name
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout Standard
+or
+\end_layout
+
+\begin_layout Quote
+STResource *R=sequence()->resource(
+\begin_inset Quotes eld
+\end_inset
+
+resource_parent->resource_child
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout Standard
+Be sure to verify that R is not NULL before accessing this pointer! Resources
+ can contain a single real number or an array of numbers.
+ To access a single number use
+\end_layout
+
+\begin_layout Quote
+double value=R->
+\begin_inset LatexCommand index
+name "getDouble()"
+
+\end_inset
+
+getDouble();
+\end_layout
+
+\begin_layout Standard
+To access an array use
+\end_layout
+
+\begin_layout Quote
+double value=R->
+\begin_inset LatexCommand index
+name "getDoubleList()"
+
+\end_inset
+
+getDoubleList(index);
+\end_layout
+
+\begin_layout Standard
+The size of the array is given by
+\end_layout
+
+\begin_layout Quote
+long N=R->
+\begin_inset LatexCommand index
+name "doubleListCount()"
+
+\end_inset
+
+doubleListCount();
+\end_layout
+
+\begin_layout Standard
+For an example of using resources, see STSampledRF.cpp in code/nodetypes/foundati
+on.
+\end_layout
+
+\begin_layout Section
+\begin_inset LatexCommand index
+name "foundation node types"
+
+\end_inset
+
+Foundation Node Type Reference
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "foundation loops"
+
+\end_inset
+
+Foundation Loops
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STCartesianLoop"
+
+\end_inset
+
+STCartesianLoop
+\series default
+ - Basic loop for standard 2D or 3D Cartesian scanning of k-space
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+PE1 and PE2 (unitless) are the phase encode iterators
+\end_layout
+
+\begin_layout Itemize
+PE1_dir and PE2_dir (unitless) are the directions of phase encoding
+\end_layout
+
+\begin_layout Itemize
+readout_dir (unitless) is the readout direction
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STRadialLoop"
+
+\end_inset
+
+STRadialLoop
+\series default
+ - Basic loop for standard 2D Radial (or 3D hybrid radial) scanning of k-space
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+angle (degrees) is the iterator controlling the view angle.
+\end_layout
+
+\begin_layout Itemize
+readout_dir1 and readout_dir2 (unitless) are the two orthogonal directions
+ for 2D radial scanning.
+\end_layout
+
+\begin_layout Itemize
+PE (unitless) is the iterator controlling the optional Cartesian phase encoding
+ for 3D hybrid radial.
+\end_layout
+
+\begin_layout Itemize
+PE_dir (unitless) is the direction of the Cartesian phase encoding for 3D
+ hybrid radial.
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Foundation Blocks
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STGradientEchoBlock"
+
+\end_inset
+
+STGradientEchoBlock
+\series default
+ - Basic block (single repetition) for simple gradient echo acquisitions
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TE (microseconds) is the echo time, or the time between excitation and acquisiti
+on.
+\end_layout
+
+\begin_layout Itemize
+TR (microseconds) is the duration of the block.
+\end_layout
+
+\begin_layout Itemize
+kspace_dir (unitless) is the direction in k-space of the readout.
+\end_layout
+
+\begin_layout Itemize
+kspace_echo (unitless) is the location in k-space at the echo time.
+\end_layout
+
+\begin_layout Itemize
+excite_time (microseconds) is the start time of the excitation pulse segment.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STSpinEchoBlock"
+
+\end_inset
+
+STSpinEchoBlock
+\series default
+ - Basic block (single repetition) for simple spin echo acquisitions
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TE (microseconds) is the echo time, or the time between excitation and acquisiti
+on.
+\end_layout
+
+\begin_layout Itemize
+TR (microseconds) is the duration of the block.
+\end_layout
+
+\begin_layout Itemize
+kspace_dir (unitless) is the direction in k-space of the readout
+\end_layout
+
+\begin_layout Itemize
+kspace_echo (unitless) is the location in k-space at the echo time.
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Foundation Segments
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STExcite"
+
+\end_inset
+
+STExcite
+\series default
+ - Fundamental segment for RF pulse excitation, including an optional slice
+ select gradient and an optional prephasing gradient.
+ For a non-selective pulse, set gradient_amplitude=(0,0,0) and slice_thickness=0.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+gradient_amplitude (
+\begin_inset Formula $(\mu T/mm)\cdot\mu s$
+\end_inset
+
+) is the amplitude for the slice select gradient, or (0,0,0) for a non-selective
+ pulse.
+\end_layout
+
+\begin_layout Itemize
+slice_thickness (mm) is thickness of the selected slice, or 0 for a non-selectiv
+e pulse.
+\end_layout
+
+\begin_layout Itemize
+bandwidth (Hz) is the bandwidth of the pulse.
+ It is automatically set by the framework for selective pulses, according
+ to gradient_amplitude and slice_thickness.
+\end_layout
+
+\begin_layout Itemize
+prephase (0 or 1) determines whether a prephasing gradient is included before
+ the selective pulse.
+ This is useful for balanced steady-state imaging.
+\end_layout
+
+\begin_layout Itemize
+Note: Use parameters of the 
+\shape italic
+SliceGradient
+\shape default
+ child to set the ramp time for the slice select gradient.
+\end_layout
+
+\begin_layout Itemize
+Note: Control the shape, flip angle, and other aspects of the excitation
+ pulse using the 
+\shape italic
+RF
+\shape default
+ child.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STExcite"
+
+\end_inset
+
+STAcquire
+\series default
+ - Fundamental segment for signal readout, including a readout gradient
+ and automatic encoding gradients.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+echo_moment (
+\begin_inset Formula $(\mu T/mm)\cdot\mu s$
+\end_inset
+
+) is the desired location in k-space at the reference time of the acquisition.
+ Prephasing encoding gradients will automatically be set to achieve echo_moment
+ at the appropriate time.
+\end_layout
+
+\begin_layout Itemize
+moment_per_point (
+\begin_inset Formula $(\mu T/mm)\cdot\mu s$
+\end_inset
+
+) is the desired k-space step between successive readout points.
+ This controls the amplitude of the readout gradient.
+\end_layout
+
+\begin_layout Itemize
+Note: Use parameters of the 
+\shape italic
+ReadoutGradient
+\shape default
+ child to control the ramp times of the readout gradient.
+\end_layout
+
+\begin_layout Itemize
+Note: Use parameters of the 
+\shape italic
+Readout
+\shape default
+ child to control the dwell time and the number of points to acquire.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STExcite"
+
+\end_inset
+
+STEncode
+\series default
+ - Fundamental segment for moving to a specific location in 3D k-space using
+ a collection of X, Y, and/or Z gradients.
+ A node of this type is often used at the end of repetitions to implement
+ a spoiler gradient.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+moment (
+\begin_inset Formula $(\mu T/mm)\cdot\mu s$
+\end_inset
+
+).
+ If do_rewind=1, this is the desired location in k-space to move to.
+ If do_rewind=0, this is the absolute moment to encode - which will offset
+ the current k-space location.
+\end_layout
+
+\begin_layout Itemize
+do_rewind (0 or 1) specifies whether or not 
+\shape italic
+moment
+\shape default
+ is defined relative to the center of k-space.
+\end_layout
+
+\begin_layout Itemize
+Note: Use the 
+\shape italic
+maxamp
+\shape default
+ and 
+\shape italic
+ramprate
+\shape default
+ parameters of the 
+\shape italic
+Gradient
+\shape default
+ child to control the amplitude and ramp time of the gradients.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STRefocus"
+
+\end_inset
+
+STRefocus
+\series default
+ - Fundamental segment for a refocusing RF pulse, including an optional
+ slice select gradient and optional crusher gradients.
+ For a non-selective pulse, set gradient_amplitude=(0,0,0) and slice_thickness=0.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+gradient_amplitude (
+\begin_inset Formula $(\mu T/mm)\cdot\mu s$
+\end_inset
+
+) is the amplitude for the slice select gradient, or (0,0,0) for a non-selective
+ pulse.
+\end_layout
+
+\begin_layout Itemize
+slice_thickness (mm) is thickness of the selected slice, or 0 for a non-selectiv
+e pulse.
+\end_layout
+
+\begin_layout Itemize
+bandwidth (Hz) is the bandwidth of the pulse.
+ It is automatically set by the framework for selective pulses, according
+ to gradient_amplitude and slice_thickness.
+\end_layout
+
+\begin_layout Itemize
+crusher_moment (
+\begin_inset Formula $(\mu T/mm)\cdot\mu s$
+\end_inset
+
+) determines the size and direction of each crusher gradient surrounding
+ the RF pulse.
+\end_layout
+
+\begin_layout Itemize
+flip_angle (degrees) is the flip angle of the RF pulse
+\end_layout
+
+\begin_layout Itemize
+Note: Use parameters of the 
+\shape italic
+SliceGradient
+\shape default
+ child to set the ramp time for the slice select gradient.
+\end_layout
+
+\begin_layout Itemize
+Note: Control the shape and other aspects of the refocusing pulse using
+ the 
+\shape italic
+RF
+\shape default
+ child.
+\end_layout
+
+\begin_layout Itemize
+Note: Use the 
+\shape italic
+maxamp
+\shape default
+ and 
+\shape italic
+ramprate
+\shape default
+ parameters of the 
+\shape italic
+Crusher1
+\shape default
+ and 
+\shape italic
+Crusher2
+\shape default
+ children to control the amplitude and ramp time for the crusher gradients.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STRF"
+
+\end_inset
+
+STRF
+\series default
+ - A single RF excitation pulse.
+ Nodes of type STRF are usually not direct children of block nodes, but
+ occur as a child of an STExcite or STRefocus node.
+ This is also the base class for other RF pulse objects, including STSampledRF,
+ STSincRF and custom RF types.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+flip_angle (degrees) is the flip angle for the pulse.
+\end_layout
+
+\begin_layout Itemize
+pulse_duration (microsec) is the total duration of the pulse.
+ In the case of STSincRF, for example, this parameter is automatically set
+ according to the 
+\shape italic
+num_lobes_left
+\shape default
+, 
+\shape italic
+num_lobes_right
+\shape default
+, and 
+\shape italic
+bandwidth
+\shape default
+ parameters.
+\end_layout
+
+\begin_layout Itemize
+reference_fraction (unitless) is the fraction of the pulse duration that
+ occurs before the reference time.
+ This is used internally by SequenceTree for purposes of timing events and
+ rephasing/prephasing gradients.
+\end_layout
+
+\begin_layout Itemize
+bandwidth (Hz) is the bandwidth of the pulse.
+ This parameter is often set by the parent object (STExcite or STRefocus)
+ in the case of a spatially selective pulse, as a function of prescribed
+ gradient amplitude and slice thickness.
+\end_layout
+
+\begin_layout Itemize
+time_step (microseconds) is the time step for sampling the RF waveform (default=
+10 microseconds)
+\end_layout
+
+\begin_layout Itemize
+phase (degrees) is a phase offset to the pulse, independent of other internal
+ phase offsets.
+\end_layout
+
+\begin_layout Itemize
+frequency (Hz) is a frequency offset to the pulse, independent of other
+ internal frequency offsets.
+\end_layout
+
+\begin_layout Itemize
+pulse_type (1, 2, or 3) specifies whether the pulse is an excitation pulse
+ (1), a refocusing pulse (2), or other (3).
+ SequenceTree uses this information to keep track of k-space location throughout
+ the sequence for purpose of automatically setting gradients for dephasing
+ and prephasing.
+ 
+\end_layout
+
+\begin_layout Itemize
+gradient_amplitude (mm) is used internally by SequenceTree (when STRF is
+ a child of STExcite or STRefocus) for purpose of automatic FOV shifts.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STReadout"
+
+\end_inset
+
+STReadout
+\series default
+ - A single readout event.
+ Nodes of type STReadout are usually not direct children of block nodes,
+ but occur as a child of an STAcquire node.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+dwell_time (microseconds) is the dwell time for the readout (time spent
+ acquiring a single point).
+\end_layout
+
+\begin_layout Itemize
+N (unitless) is the number of points to be read.
+\end_layout
+
+\begin_layout Itemize
+reference_fraction (unitless) is the fraction of the readout duration that
+ occurs before the reference (or echo) time.
+ This is used internally by SequenceTree to set timing and automatically
+ compute gradient moments for prephasing and dephasing.
+\end_layout
+
+\begin_layout Itemize
+actual_reference_fraction (unitless) is for information purposes only, indicatin
+g the effective reference fraction after adjustments have been made according
+ to the gradient raster time.
+\end_layout
+
+\begin_layout Itemize
+reference_sample (unitless) is for information purposes only, indicating
+ the effective sample number at echo time.
+\end_layout
+
+\begin_layout Itemize
+phase (degrees) is a phase offset to the readout, independent of other internal
+ phase offsets.
+\end_layout
+
+\begin_layout Itemize
+frequency (Hz) is a frequency offset to the readout, independent of other
+ internal frequency offsets.
+\end_layout
+
+\begin_layout Itemize
+gradient_amplitude (mm) is used internally by SequenceTree (when STReadout
+ is a child of STAcquire) for purpose of automatic FOV shifts.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STGradientAmp"
+
+\end_inset
+
+STGradientAmp
+\series default
+ - A 3D gradient object with fixed amplitude used during a selective RF
+ pulse or during a readout.
+ Nodes of type STGradientAmp are usually not direct children of block nodes,
+ but occur as a child of STAcquire, STExcite, or STRefocus.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+ramp_time_1 and ramp_time_2 (microsec) are the rampup and rampdown times,
+ respectively.
+ 
+\end_layout
+
+\begin_layout Itemize
+plateau_time (microsec) is the plateau time.
+\end_layout
+
+\begin_layout Itemize
+amplitude (
+\begin_inset Formula $\mu T/mm$
+\end_inset
+
+) is the 3D amplitude.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+\begin_inset LatexCommand index
+name "STGradientMom"
+
+\end_inset
+
+STGradientMom
+\series default
+ - A 3D gradient object with fixed zeroth moment used during used for phase
+ encoding, prephasing, dephasing or spoiling.
+ Nodes of type STGradientMom should almost always occur as a child of an
+ STEncode object.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+ramp_times_1, plateau_times, ramp_times_2, and start_times are all used
+ internally by SequenceTree.
+ Rather than setting these parameters directly, STEncode uses the setMoment()
+ method of STGradientMom.
+ Note that STGradientMom should almost always occur as a child of an STEncode
+ object.
+\end_layout
+
+\begin_layout Itemize
+alignment (0, 1, or 2) specifies whether the gradients are to be aligned
+ to the left (0), right (1), or center (2) relative to one another.
+\end_layout
+
+\begin_layout Itemize
+always_min_dur (0 or 1) specifies whether the duration should always be
+ minimal.
+ By default this parameter is set to 0, indicating that a fixed duration
+ is used throughout the sequence (good for phase encoding tables).
+\end_layout
+
+\begin_layout Itemize
+maxamp (
+\begin_inset Formula $\mu T/mm$
+\end_inset
+
+) is the maximum gradient amplitude to be used.
+ By default this parameter is 0, in which case the maxamp parameter of the
+ root node is used instead.
+\end_layout
+
+\begin_layout Itemize
+ramprate (
+\begin_inset Formula $(\mu T/mm)/\mu s$
+\end_inset
+
+) is the maximum slew rate to be used.
+ By default this parameter is 0, in which case the ramprate parameter of
+ the root node is used instead.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Virtual Scanner (MRI Simulator)
+\end_layout
+
+\begin_layout Standard
+[To be finished]
+\end_layout
+
+\begin_layout Section
+Export to Scanner
+\end_layout
+
+\begin_layout Subsection
+Export to Siemens Scanner
+\end_layout
+
+\begin_layout Standard
+SequenceTree sequences can be exported as IDEA-compatible source code, compiled
+ within IDEA framework, and then run on a Siemens Magnetom MRI scanner.
+\end_layout
+
+\begin_layout Standard
+If you work at the Hospital of the University of Pennsylvania, some convenient
+ tools exist for exporting to the scanner.
+ These are accessible by logging in remotely to the MaglandMRI workstation.
+ Contact Jeremy for more information.
+\end_layout
+
+\begin_layout Standard
+Note that the export-to-Siemens module is not included with the open source
+ distribution of SequenceTree.
+ Contact Jeremy to obtain this module.
+ 
+\end_layout
+
+\begin_layout Standard
+In general, follow these instructions for exporting your sequence.
+\end_layout
+
+\begin_layout Itemize
+Open your sequence within SequenceTree (make sure it compiles) and select
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Tools->Export to Scanner
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+Specify the desired name of the sequence, the export directory (must exist,
+ no spaces please), and the Siemens software version (e.g.
+ siemens_vb15).
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Note: If you have IDEA installed on your computer, you will probably want
+ to specify the export directory as something like: z:
+\backslash
+n4
+\backslash
+pkg
+\backslash
+MrServers
+\backslash
+MrImaging
+\backslash
+seq
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+After clicking OK, SequenceTree will create a subdirectory with source code
+ for your sequence.
+ If IDEA is installed on your computer, you can compile this sequence just
+ like any other research sequence (i.e.
+ using SDE shell).
+ Otherwise, you can copy the exported directory to a different computer
+ that has IDEA installed.
+\end_layout
+
+\begin_layout Itemize
+If the sequence fails to compile, first consult the list of possible reasons
+ below.
+ If you can't find the problem in that list, try compiling a simpler sequence,
+ such as spgr.sts from the web.
+ If you continue to have trouble, please report the issue to the author.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\bar under
+Some possible reasons for compilation errors (from within IDEA)
+\end_layout
+
+\begin_layout Itemize
+You forgot to 
+\begin_inset Quotes eld
+\end_inset
+
+return true
+\begin_inset Quotes erd
+\end_inset
+
+ in a function that has return type 
+\begin_inset Quotes eld
+\end_inset
+
+bool
+\begin_inset Quotes erd
+\end_inset
+
+.
+ For example, in loopRun().
+ This is a frequent problem, because some compilers (such as MinGW) do not
+ complain about this issue, whereas others consider it as an error.
+\end_layout
+
+\begin_layout Subsection
+Interface to Siemens User Interface at Scanner
+\end_layout
+
+\begin_layout Standard
+SequenceTree always automatically connects to Field of View and Field-of-View
+ Position, including oblique scan positions.
+ Just remember that X, Y, and Z directions in SequenceTree always correspond
+ to Readout, Phase Encode, and Slice directions at the scanner, respectively.
+ Currently, you cannot change the dimensions of the field of view at the
+ scanner, but this functionality will be added in the future.
+\end_layout
+
+\begin_layout Standard
+All other parameters (TE, TR, resolution, bandwidth, etc.) are hardcoded
+ into the sequence and cannot be modified at the scanner, unless they are
+ manually added as scanner directives in the notes tab.
+ You can add parameters to the special card of the scanner user interface
+ using the following procedure:
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Step 1:
+\series default
+ Select the sequence parameter you want add to the special card, and make
+ sure it is linked to a global parameter (see Section 
+\begin_inset LatexCommand ref
+reference "sub:Global-Parameters"
+
+\end_inset
+
+).
+ This parameter must be of type STReal or STInteger (STVector and STString
+ parameters cannot be exported at this time).
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Step 2:
+\series default
+ In the notes tab, add directive lines in the following format:
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+== Siemens User Interface Directives ===== 
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+UIDOUBLE NAME=TE RANGE=1:0.1:100 LABEL="TE" UNITS="ms" FACTOR=0.001 
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+UIDOUBLE NAME=TR RANGE=10:10:3000 LABEL="TR" UNITS="ms" FACTOR=0.001 
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+UIDOUBLE NAME=flip_angle RANGE=0:5:180 LABEL="Flip angle" UNITS="deg" 
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+UIDOUBLE NAME=slice_thickness RANGE=2:2:50 LABEL="Slice thickness" UNITS="mm"
+ 
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+UICHECKBOX NAME=RF_spoiling LABEL="RF Spoiling" 
+\end_layout
+
+\begin_layout Standard
+
+\size footnotesize
+============================ 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+The fields in each line must be separated by tabs.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+You are limited to 13 special card parameters.
+\end_layout
+
+\begin_layout Itemize
+The 
+\series bold
+NAME
+\series default
+ field must match the name of the global parameter.
+\end_layout
+
+\begin_layout Itemize
+The 
+\series bold
+RANGE
+\series default
+ field specifies the range of values for the parameter in the format min:step:ma
+x.
+\end_layout
+
+\begin_layout Itemize
+The 
+\series bold
+LABEL
+\series default
+ field specifies the label for the parameter on the user interface.
+\end_layout
+
+\begin_layout Itemize
+The (optional) 
+\series bold
+UNITS
+\series default
+ field specifies the units for the parameter on the user interface
+\end_layout
+
+\begin_layout Itemize
+The (optional) 
+\series bold
+FACTOR
+\series default
+ field can be used to convert between units.
+ For example, if the global parameter TE is stored in microseconds in SequenceTr
+ee, then FACTOR=0.001 converts it to milliseconds on the Siemens user interface.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+UIDOUBLE
+\series default
+ can be used for parameters of type STReal or STInteger
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+UICHECKBOX
+\series default
+ can be used for parameters that take on values 0 and 1 (0 means unchecked,
+ 1 means checked)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Important:
+\series default
+ Parameters with certain names, including 
+\begin_inset Quotes eld
+\end_inset
+
+TE
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+TR
+\begin_inset Quotes erd
+\end_inset
+
+, and 
+\begin_inset Quotes eld
+\end_inset
+
+flip_angle
+\begin_inset Quotes erd
+\end_inset
+
+, are automatically added to the standard locations on the user interface,
+ and are not added to the special card.
+ It is required that TE and TR have units of milliseconds, and that flip_angle
+ has units of degrees.
+\end_layout
+
+\begin_layout Subsection
+Cardiac/Respiratory Gating
+\end_layout
+
+\begin_layout Standard
+To add cardiac or respiratory gating functionality to your sequence, put
+ the following code somewhere within the loopRun() function:
+\end_layout
+
+\begin_layout Quote
+int channel_number=1; 
+\end_layout
+
+\begin_layout Quote
+long halt_delay=100; //microseconds
+\end_layout
+
+\begin_layout Quote
+scanner()->scannerCommand("waitForTrigger",&channel_number,&halt_delay);
+\end_layout
+
+\begin_layout Standard
+When this code is encountered, during the sequence, the scan will pause
+ until it receives a trigger from the channel specified by 
+\begin_inset Quotes eld
+\end_inset
+
+channel_number
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Once the trigger is received, the scan will pause for additional delay
+ (according to halt_delay in microseconds) and then resume with the sequence.
+\end_layout
+
+\begin_layout Standard
+To set up cardiac or respiratory gating, you must also specify the trigger
+ source from the appropriate user interface card at the scanner.
+\end_layout
+
+\begin_layout Standard
+Within the SequenceTree GUI, 
+\begin_inset Quotes eld
+\end_inset
+
+waitForTrigger
+\begin_inset Quotes erd
+\end_inset
+
+ events appear as magenta rectangles in the sequence simulation view.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset LatexCommand index
+name "SequenceTree Controller"
+
+\end_inset
+
+SequenceTree Controller (Parsing Raw Data)
+\end_layout
+
+\begin_layout Standard
+The SequenceTree Controller is an executable program that is distributed
+ with SequenceTree (
+\begin_inset LatexCommand index
+name "st4controller"
+
+\end_inset
+
+bin
+\backslash
+st4controller.exe on Windows).
+ This program is very useful for automatically 
+\begin_inset LatexCommand index
+name "parsing raw data"
+
+\end_inset
+
+parsing 
+\begin_inset LatexCommand index
+name "raw data"
+
+\end_inset
+
+raw data at the scanner.
+ To automatically parse raw data, use the following steps:
+\end_layout
+
+\begin_layout Itemize
+When you transfer your sequence binary files to the scanner (e.g.
+ seqname.dll, seqname.o750, etc.) be sure to also transfer the [seqname].sts
+ and [seqname].exe files (all should go in the %CustomerSeq% folder on the
+ Host computer).
+ These files can be found in the exported sequence directory (i.e.
+ where the sequence was compiled within SDE shell).
+ 
+\end_layout
+
+\begin_layout Itemize
+Run st4controller.exe (found in bin directory of SequenceTree) on a companion
+ computer that can see the Host computer over the network.
+ Select 
+\begin_inset Quotes eld
+\end_inset
+
+Tools->Controller Configuration
+\begin_inset Quotes erd
+\end_inset
+
+ within st4controller and specify the directories for sequence binaries
+ and raw data (it's a good idea to mount the host computer on a network
+ drive).
+\end_layout
+
+\begin_layout Itemize
+In the 
+\begin_inset Quotes eld
+\end_inset
+
+Sequences
+\begin_inset Quotes erd
+\end_inset
+
+ tab you should see a list of the pulse sequences you have exported to the
+ scanner.
+\end_layout
+
+\begin_layout Itemize
+For VA30 and similar release versions, make sure the rawdata2disk flag has
+ been set.
+ On VB15 and similar release versions, use the 
+\begin_inset Quotes eld
+\end_inset
+
+twix
+\begin_inset Quotes erd
+\end_inset
+
+ tool to save raw data to the raw data directory specified in st4controller.exe.
+\end_layout
+
+\begin_layout Itemize
+Immediately after you run a scan (and after the data has been saved to the
+ raw data directory), the raw data file should appear in the 
+\begin_inset Quotes eld
+\end_inset
+
+Raw Data
+\begin_inset Quotes erd
+\end_inset
+
+ tab.
+ The program shows the size of the file, which pulse sequence was run, and
+ how many receive channels were used.
+ Click on the new raw data file and click the 
+\begin_inset Quotes eld
+\end_inset
+
+Parse
+\begin_inset Quotes erd
+\end_inset
+
+ button.
+ This will open the results viewer with your raw data in .mda (multi-dimensional
+ array) format.
+ Double-click a file to view the raw k-space data array.
+ You can use the Process menu to perform simple reconstruction using 1D,
+ 2D, or 3D FFT.
+ For more advanced processing, use ChainLink, Matlab, or other program (hint:
+ ChainLink is :) recommended ).
+\end_layout
+
+\begin_layout Itemize
+From within the results viewer click 
+\begin_inset Quotes eld
+\end_inset
+
+Save Experiment...
+\begin_inset Quotes erd
+\end_inset
+
+ to save your data to a folder.
+\end_layout
+
+\begin_layout Itemize
+It's a good idea to erase raw data files when you are done with them.
+ Click the 
+\begin_inset Quotes eld
+\end_inset
+
+Open Folder
+\begin_inset Quotes erd
+\end_inset
+
+ button to open the raw data file, and then delete the old files.
+\end_layout
+
+\begin_layout Standard
+Alternatively, you can read the raw data using the 
+\begin_inset Quotes eld
+\end_inset
+
+Tools->Read raw data...
+\begin_inset Quotes erd
+\end_inset
+
+ menu option within SequenceTree.
+ For this method you must open the appropriate sequence, compile it within
+ SequenceTree, and make sure the correct parameters are set.
+ The advantage of st4controller is that it automatically detects the sequence
+ and sequence parameters that were actually run.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Note:
+\series default
+ When using st4controller, be sure to parse the raw data immediately after
+ you run the scan (and before you run the next scan).
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Note:
+\series default
+ You can also use st4controller on a personal workstation (not at the scanner).
+ Just place the [seqname].sts, [seqname].exe, and [seqname].st4parameters files
+ in a designated sequence directory, and the raw data in a designated raw
+ data directory, and set the st4controller configuration appropriately.
+ The [seqname].st4parameters file is created automatically during the scan
+ (at the scanner).
+ But you can also make this file on your own computer -- just open and compile
+ the sequence within SequenceTree, set the appropriate parameters, and then
+ rename the tmp
+\backslash
+sequence_parameters_in.txt file (found in SequenceTree folder).
+\end_layout
+
+\begin_layout Section
+MR Pulse Tool
+\end_layout
+
+\begin_layout Standard
+[To be finished]
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand printindex
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

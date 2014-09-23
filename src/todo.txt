@@ -1,0 +1,138 @@
+
+
+check if compilation error double click works in mingw version
+
+minimize/maximize global parameters
+zoom in to simulation plot 
+
+Press F4 to go to first error
+
+document foundation classes (but not in the code -because of customization)
+---
+Control, for example, TE by mouse
+
+************************** DONE ********************************
+
+when exporting to scanner using write_text_file_if_needed
+fix compilation error reporting problems
+when error in sequence go back to first block
+
+-------- binary release 6/16/2008 ---------------------------------------------------------------
+
+[[[[many changes, not documented here]]]]
+
+interface to virtual scanner
+units in global parameters
+go to wiki for open sequence from web
+
+-------- binary release 5/27/2008 ---------------------------------------------------------------
+
+open sequence from web
+update code from web
+reorganize and separate code
+do not export classes that are not used
+
+-------- binary release 5/24/2008 ---------------------------------------------------------------
+
+Fix problem with customizing a promoted STRF
+Figure out how to do default parameters in classes!
+delete white space at bottom of header and source code
+fix error problem with mingw
+reload button on codeview
+export user-defined classes
+
+-------- binary release 5/23/2008 ---------------------------------------------------------------
+
+add combo box to bottom of code window
+fix up foundation class files
+delete global parameters from globalview
+move global parameters up and down
+global parameters
+
+-------- binary release 5/22/2008 ---------------------------------------------------------------
+
+export to scanner
+attach notes to sequence
+
+-------- binary release 5/19/2008 ---------------------------------------------------------------
+
+implement off-center FOV scanning
+fix problem - when click on event list, highlights wrong event in simview
+implement automatic parameter minimization/maximization (for STReal)
+give error when duration of STChain is exceeded
+
+-------- binary release 5/16/2008 ---------------------------------------------------------------
+
+implement STArbAcquire
+implement arbitrary readout
+auto create binary package from mingw compiled code
+indicate which classes are not being used (in class list)
+allow deleting of classes
+display name of class in code view
+alphabetize class lists for selection window
+implement arbitrary gradient shapes
+improve updating of code
+make code window dockable
+
+-------- binary release 5/15/2008 ---------------------------------------------------------------
+
+link nodes
+allow customizing of promoted nodes
+implement time chunks in simulation plots
+copy/paste nodes
+Configuration (msvc, mingw,linux)
+Implement "add segment", "insert segment"
+speed up simulator by skipping first portion (don't run the blocks)
+display block number even when block is not loaded
+speed up simulator -- or put in in a separate thread
+option to change node type (parent must be customized)
+option to rename classes
+classes tab - list of classes
+don't hard code the paths
+Change "amplitudes" to "amplitude"
+Make STRefocus
+Make STSpinEchoBlock
+Make STMultiAcquire
+Make radial loop
+Add maxamp, ramprate params to STGradientMom
+automat the iterators in loops
+Put PE2 in cartesian loop
+compile button on source editor
+remove dependence of simulator on Qt
+exclude STLoop on loop choices
+double click to go to compile errors
+link eventlist to treeview
+allow overlap of gradients
+enable more than one sequence to run simultaneously
+incremental loading of sequence
+display duration and numblocks - compute this from start
+click on events and select in event list
+implement event list
+implement log window - display sequence errors - do separate tab for compile and simulate
+fix problem -when change parameter keep block number the same
+recent file list
+minimum height for plot window
+display units on plots
+display block number in simblock
+units for parameters
+display "Press F9 to compile..." in simulation view
+ask to save when exit
+scroll through blocks
+Put status messages in status bar - compile, simulate, etc.
+Close button for sequences
+implement close sequence
+ask if want to save when close sequence
+implement TE for gradient echo block
+Put asterisk when sequence has been modified
+handle case of slice_thickness!=0, but slice_gradient=0
+Delete extra files: stparameterview
+Fix problem with stgradientmom amplitudes
+Fix selective pulse issues
+Fix issue with negative part of RF pulse waveform
+Maximize window on startup
+Fix updating parameter view after simulation (for example pulse_duration after changing lobes)
+Handle promotion of nodes
+Output parameters in simulation (done)
+	Load passive information (done)
+	don't display green/red balls when not compiled (done)
+	
