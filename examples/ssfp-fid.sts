@@ -1,0 +1,218 @@
+++++++ HEADER ++++++
+STVERSION=4.3.0
+++++++ END HEADER ++++++
+++++++ NOTES ++++++
+
+
+++++++ END NOTES ++++++
+++++++ GLOBAL ++++++
+++++++ END GLOBAL ++++++
+++++++ RECONSTRUCTION ++++++
+function reconstruction(num_channels)
+if (nargin<1) num_channels=1; end;
+
+++++++ END NOTES ++++++
+++++++ LINK GROUPS ++++++
+
+
+++++++ END LINK GROUPS ++++++
+
+
+++++++ NODES ++++++
+
+PARAMETER	STVector3	FOV	(200,200,50)	mm	active	
+PARAMETER	STReal	maxamp	20	uT/mm	active	
+PARAMETER	STReal	ramprate	0.1	[uT/mm]/us	active	
+PARAMETER	STReal	gamma	42.5764	Hz/uT	active	
+PARAMETER	STVector3	FOV_shift	(0,0,0)	mm	active	
+PARAMETER	STVector3	phase_shift	0	degrees	active	
+PARAMETER	STVector3	FOV_shift_offset	(0,0,0)	mm; used internally	active	
+CHILD	STCartesianLoop	Loop1
+    PARAMETER	STIterator	PE1	-64:1:63		active	
+    PARAMETER	STIterator	PE2	0:1:0		active	
+    PARAMETER	STVector3	readout_dir	(1,0,0)		active	
+    PARAMETER	STVector3	PE1_dir	(0,1,0)		active	
+    PARAMETER	STVector3	PE2_dir	(0,0,1)		active	
+    CHILD	STGradientEchoBlock	Block
+        PARAMETER	STReal	TE	6000	microsec	active	
+        PARAMETER	STReal	TR	50000	microsec	active	
+        PARAMETER	STVector3	kspace_dir	(1,0,0)		passive	
+        PARAMETER	STVector3	kspace_echo	(0,-64,0)		passive	
+        PARAMETER	STReal	excite_time	1000	microsec	active	
+        CHILD	STExcite	Excite
+            PARAMETER	STVector3	gradient_amplitude	(0,0,10)	uT/mm	active	
+            PARAMETER	STReal	slice_thickness	10	mm	active	
+            PARAMETER	STReal	bandwidth	4257.64	Hz	passive	
+            PARAMETER	STInteger	prephase	1	0 or 1	active	
+            CHILD	STGradientMom	Prephase
+                PARAMETER	STVector3	ramp_times_1	(0,0,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(0,0,320)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(0,0,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(0,0,-20)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            CHILD	STGradientAmp	SliceGradient
+                PARAMETER	STReal	ramp_time_1	200	microsec	active	
+                PARAMETER	STReal	plateau_time	1870	microsec	passive	
+                PARAMETER	STReal	ramp_time_2	200	microsec	active	
+                PARAMETER	STVector3	amplitude	(0,0,10)	uT/mm	passive	
+                END
+            CHILD	STSincRF	RF
+                PARAMETER	STReal	num_lobes_left	3		active	
+                PARAMETER	STReal	num_lobes_right	3		active	
+                PARAMETER	STReal	flip_angle	45	degrees	active	
+                PARAMETER	STReal	pulse_duration	1878.98	microsec	passive	
+                PARAMETER	STReal	reference_fraction	0.5		passive	
+                PARAMETER	STReal	bandwidth	4257.64	Hz	passive	
+                PARAMETER	STReal	time_step	10	microsec	active	
+                PARAMETER	STReal	phase	0	degrees	active	
+                PARAMETER	STReal	frequency	0	Hz	active	
+                PARAMETER	STInteger	pulse_type	1	1=Excite; 2=Refocus	active	
+                PARAMETER	STVector3	gradient_amplitude	(0,0,10)	uT/mm; for internal use	passive	
+                PARAMETER	STReal	slice_thickness	10	mm; for internal use	passive	
+                END
+            END
+        CHILD	STAcquire	Acquire
+            PARAMETER	STVector3	echo_moment	(0,-7515.9,0)	[uT/mm]-us	passive	
+            PARAMETER	STVector3	moment_per_point	(117.436,0,0)	[uT/mm]-us	passive	
+            CHILD	STGradientMom	Encode
+                PARAMETER	STVector3	ramp_times_1	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(580,180,320)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(-19.7734,-19.7787,-19.8077)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            CHILD	STGradientAmp	ReadoutGradient
+                PARAMETER	STReal	ramp_time_1	200	microsec	active	
+                PARAMETER	STReal	plateau_time	7680	microsec	passive	
+                PARAMETER	STReal	ramp_time_2	200	microsec	active	
+                PARAMETER	STVector3	amplitude	(3.91453,0,0)	uT/mm	passive	
+                END
+            CHILD	STReadout	Readout
+                PARAMETER	STInteger	enabled	1		active	
+                PARAMETER	STReal	dwell_time	30	microsec	active	
+                PARAMETER	STInteger	N	256		active	
+                PARAMETER	STReal	reference_fraction	0.5		active	
+                PARAMETER	STReal	actual_reference_fraction	0.5		passive	
+                PARAMETER	STReal	reference_sample	128.5		passive	
+                PARAMETER	STReal	phase	0	degrees	active	
+                PARAMETER	STReal	frequency	0	Hz	active	
+                PARAMETER	STVector3	gradient_amplitude	(3.91453,0,0)	uT/mm; for internal use	passive	
+                PARAMETER	STInteger	round_up_reference_time	1	0 or 1	active	
+                END
+            END
+        CHILD	STEncode	Rewind
+            PARAMETER	STVector3	moment	(0,0,100000)	[uT/mm]-us	active	
+            PARAMETER	STInteger	do_rewind	1	0 or 1	active	
+            CHILD	STGradientMom	Gradient
+                PARAMETER	STVector3	ramp_times_1	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	plateau_times	(580,180,4800)	microsec	passive	
+                PARAMETER	STVector3	ramp_times_2	(200,200,200)	microsec	passive	
+                PARAMETER	STVector3	start_times	(0,0,0)	microsec	passive	
+                PARAMETER	STVector3	amplitude	(-19.7734,19.7787,20)	uT/mm	passive	
+                PARAMETER	STInteger	alignment	0	0=left; 1=right; 2=center	active	
+                PARAMETER	STInteger	always_min_dur	0	0 or 1	active	
+                PARAMETER	STReal	maxamp	0	[uT/mm]	active	
+                PARAMETER	STReal	ramprate	0	[uT/mm]/us	active	
+                END
+            END
+        END
+    END
+END
+
+++++++ END NODES ++++++
+
+++++++ USERCLASS SPGRLoop ++++++
+
+++++++ HEADER
+class ST_EXPORT SPGRLoop : public STLoop
+{
+public:
+	/* BEGIN SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	STIterator PE1;
+	STIterator PE2;
+	STVector3 readout_dir;
+	STVector3 PE1_dir;
+	STVector3 PE2_dir;
+	STInteger RF_spoiling;
+	STGradientEchoBlock *Block;
+	/* END SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	
+	SPGRLoop();
+	bool prepare();
+	
+	bool loopRun();
+};
+
+
+++++++ SOURCE
+SPGRLoop::SPGRLoop() {
+	ST_CLASS(SPGRLoop,STLoop)
+	/* ST_PARAMETERS */	
+	ST_PARAMETER(STIterator,PE1,0:1:0,)
+	ST_PARAMETER(STIterator,PE2,0:1:0,)
+	ST_PARAMETER(STVector3,readout_dir,(1,0,0),)
+	ST_PARAMETER(STVector3,PE1_dir,(0,1,0),)
+	ST_PARAMETER(STVector3,PE2_dir,(0,0,1),)
+	ST_PARAMETER(STInteger,RF_spoiling,0,0 or 1)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientEchoBlock,Block)
+}
+bool SPGRLoop::prepare() {
+	Block->kspace_dir=readout_dir;
+	return STLoop::prepare();
+}
+
+
+bool SPGRLoop::loopRun() {
+    if (RF_spoiling) {
+        sequence()->phase_shift=rand()%360;
+    }
+	Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2;
+	return Block->run();
+}
+
+++++++ END
+
+++++++ CLASS STRoot ++++++
+
+++++++ HEADER
+class STRoot : public STSequence
+{
+public:
+	/* BEGIN SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	STCartesianLoop *Loop1;
+	/* END SEQUENCETREE -- this section generated by SequenceTree -- do not edit */
+	
+	STRoot();
+	bool prepare();
+};
+
+
+++++++ SOURCE
+STRoot::STRoot() {
+	ST_CLASS(STRoot,STSequence)
+	/* ST_PARAMETERS */
+	/* ST_CHILDREN */
+	ST_CHILD(STCartesianLoop,Loop1);
+}
+
+bool STRoot::prepare() {
+	return STSequence::prepare();
+}
+
+++++++ END
+++++++ RESOURCES ++++++
+
+
+
+++++++ END RESOURCES ++++++
+
