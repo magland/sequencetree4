@@ -73,7 +73,7 @@ STMainWindow::STMainWindow(QWidget *parent) : QMainWindow(parent) {
 	
 	connect(ui.actionChainLink,SIGNAL(triggered()),this,SLOT(slot_chainlink()));
 	//connect(ui.actionRTST,SIGNAL(triggered()),this,SLOT(slot_rtst()));
-	connect(ui.actionMRPulseTool,SIGNAL(triggered()),this,SLOT(slot_mr_pulse_tool()));
+	//connect(ui.actionMRPulseTool,SIGNAL(triggered()),this,SLOT(slot_mr_pulse_tool()));
 	
 	connect(ui.actionPreferences,SIGNAL(triggered()),this,SLOT(slot_preferences()));
 	
@@ -280,7 +280,7 @@ void STMainWindow::connect_sequence_view(STSequenceView *SV) {
 	connect(SV,SIGNAL(modificationChanged()),this,SLOT(slot_modification_changed()));
 	connect(SV,SIGNAL(compiledChanged()),this,SLOT(slot_compiled_changed()));
 	connect(SV,SIGNAL(statusMessage(QString)),this,SLOT(slot_status_message(QString)));
-	connect(SV,SIGNAL(runMRPulseTool(QString)),this,SLOT(slot_run_mr_pulse_tool(QString)));
+	//connect(SV,SIGNAL(runMRPulseTool(QString)),this,SLOT(slot_run_mr_pulse_tool(QString)));
 	SV->updatePreferences();
 }
 
@@ -572,6 +572,7 @@ void STMainWindow::slot_rtst() {
 }
 */
 
+/*
 void STMainWindow::slot_mr_pulse_tool() {
 	#ifdef WIN32
 		QString st_bin_dir=ST_BIN_DIR;
@@ -604,6 +605,7 @@ void STMainWindow::slot_run_mr_pulse_tool(QString fname) {
 		QProcess::startDetached(exec,args);
 	#endif		
 }
+*/
 void STMainWindow::slot_preferences() {
 	STPreferencesDlg dlg;
 	if (dlg.exec()==QDialog::Accepted) {

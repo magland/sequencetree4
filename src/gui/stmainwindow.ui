@@ -92,7 +92,6 @@
     <addaction name="actionUpdateCodeFromWeb" />
     <addaction name="separator" />
     <addaction name="actionChainLink" />
-    <addaction name="actionMRPulseTool" />
     <addaction name="separator" />
     <addaction name="actionPreferences" />
    </widget>
@@ -135,7 +134,6 @@
    <addaction name="actionCompile" />
    <addaction name="separator" />
    <addaction name="actionChainLink" />
-   <addaction name="actionMRPulseTool" />
    <addaction name="actionImportRFPulseWaveform" />
    <addaction name="actionExportToVirtualScanner" />
   </widget>
@@ -266,14 +264,6 @@
   <action name="actionUpdateExportToScanner" >
    <property name="text" >
     <string>Enable/Update Export to Scanner...</string>
-   </property>
-  </action>
-  <action name="actionMRPulseTool" >
-   <property name="text" >
-    <string>MR Pulse Tool...</string>
-   </property>
-   <property name="toolTip" >
-    <string>Open MR Pulse Tool - RF pulse design program</string>
    </property>
   </action>
   <action name="actionImportRFPulseWaveform" >
