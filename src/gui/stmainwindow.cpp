@@ -538,6 +538,10 @@ QString chainlink_dir() {
 }
 
 void STMainWindow::slot_chainlink() {
+	if (chainlink_dir().isEmpty()) {
+		QMessageBox::information(this,"Unable to find chainlink","Unable to find chainlink.");
+		return;
+	}
 	#ifdef WIN32
 		QString st_bin_dir=ST_BIN_DIR;
 		QString batch_fname=ST_TMP_DIR+"/tmp_script.bat";
