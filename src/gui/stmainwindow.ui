@@ -92,7 +92,6 @@
     <addaction name="actionUpdateCodeFromWeb" />
     <addaction name="separator" />
     <addaction name="actionChainLink" />
-    <addaction name="actionRTST" />
     <addaction name="actionMRPulseTool" />
     <addaction name="separator" />
     <addaction name="actionPreferences" />
@@ -136,7 +135,6 @@
    <addaction name="actionCompile" />
    <addaction name="separator" />
    <addaction name="actionChainLink" />
-   <addaction name="actionRTST" />
    <addaction name="actionMRPulseTool" />
    <addaction name="actionImportRFPulseWaveform" />
    <addaction name="actionExportToVirtualScanner" />
@@ -300,11 +298,6 @@
   <action name="actionCreateParameterFile" >
    <property name="text" >
     <string>Create parameter file...</string>
-   </property>
-  </action>
-  <action name="actionRTST" >
-   <property name="text" >
-    <string>RTST...</string>
    </property>
   </action>
  </widget>

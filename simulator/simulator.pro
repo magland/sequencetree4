@@ -18,9 +18,11 @@ DEPENDPATH += ../src/shared
 INCLUDEPATH += .
 DEPENDPATH += .
 
+HEADERS += ../code/framework/st4.h
+SOURCES += ../code/framework/st4.cpp
 
-HEADERS += customclasses.h createsequence.h foundationclasses.h loadparametersfile.h st4.h stsimscanner.h stsimscannerblocklist.h
-SOURCES += main.cpp customclasses.cpp createsequence.cpp foundationclasses.cpp loadparametersfile.cpp st4.cpp stsimscanner.cpp stsimscannerblocklist.cpp
+HEADERS += customclasses.h createsequence.h foundationclasses.h loadparametersfile.h stsimscanner.h stsimscannerblocklist.h
+SOURCES += main.cpp customclasses.cpp createsequence.cpp foundationclasses.cpp loadparametersfile.cpp stsimscanner.cpp stsimscannerblocklist.cpp
 
 
 
