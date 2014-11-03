@@ -306,18 +306,27 @@ void STTreeView::update() {
 
 void STTreeView::show_popup_menu(QPoint pos) {
 	if (!Seq) return;
+	qDebug() << __FUNCTION__ << __LINE__;
 	STMetaNode *node=current_node();
+	qDebug() << __FUNCTION__ << __LINE__;
 	if (node) {
 		STMetaNode *par=node->parent();
 		STMetaClass *parclass=0;
 		if (par) parclass=Seq->metaClass(par->className());	
 		STMetaClass *C=Seq->metaClass(node->className());
-		
+		if (!C) {
+			qWarning() << "C is null" << node->className();
+			return;
+		}
+
+		qDebug() << __FUNCTION__ << __LINE__;		
 		if (C->isFoundationClass()) {
+			qDebug() << __FUNCTION__ << __LINE__;
 			addChildAct->setText("Add child node");
 			addChildAct->setEnabled(false);
 		}
 		else {
+			qDebug() << __FUNCTION__ << __LINE__;
 			if (Seq->inherits(node->className(),"STSequence")) { 
 				addChildAct->setText("Add Loop");
 				addChildAct->setEnabled(true);
@@ -335,7 +344,8 @@ void STTreeView::show_popup_menu(QPoint pos) {
 				addChildAct->setEnabled(false);
 			}
 		}
-		
+
+		qDebug() << __FUNCTION__ << __LINE__;		
 		if ((!parclass)||(parclass->isFoundationClass())) {
 			insertNodeAct->setText("Insert node");
 			insertNodeAct->setEnabled(false);
@@ -358,7 +368,8 @@ void STTreeView::show_popup_menu(QPoint pos) {
 				insertNodeAct->setEnabled(false);
 			}
 		}
-		
+
+		qDebug() << __FUNCTION__ << __LINE__;		
 		if ((parclass)&&(!parclass->isFoundationClass())) {
 			changeNodeTypeAct->setEnabled(true);
 			renameNodeAct->setEnabled(true);
@@ -369,7 +380,8 @@ void STTreeView::show_popup_menu(QPoint pos) {
 			renameNodeAct->setEnabled(false);
 			deleteNodeAct->setEnabled(false);
 		}
-		
+
+		qDebug() << __FUNCTION__ << __LINE__;		
 		if (parclass)
 			promoteNodeAct->setEnabled(true);
 		else
@@ -384,7 +396,8 @@ void STTreeView::show_popup_menu(QPoint pos) {
 			else
 				customizeNodeAct->setEnabled(true);
 		}
-		
+
+		qDebug() << __FUNCTION__ << __LINE__;		
 		if (node->linkGroup()>=0) {
 			unlinkNodeAct->setEnabled(true);
 		}
@@ -412,9 +425,13 @@ void STTreeView::mousePressEvent ( QMouseEvent * event ) {
 		emit linkNodes(node1,node2);
 	}
 	if (event->button()==Qt::RightButton) {
+		qDebug() << __FUNCTION__ << __LINE__;
 		STTreeViewItem *item=(STTreeViewItem *)currentItem();
+		qDebug() << __FUNCTION__ << __LINE__;
 		if (item) {
+			qDebug() << __FUNCTION__ << __LINE__;
 			show_popup_menu(event->pos());
+			qDebug() << __FUNCTION__ << __LINE__;
 		}
 	}
 	emit currentNodeChanged(node2);

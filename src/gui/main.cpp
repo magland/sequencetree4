@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
 	QDir(ST_ROOT_DIR).mkdir("code");
 	
 	/*if (!QFile(ST_CODE_DIR+"/nodetypes/foundation/_filelist.txt").exists()) {
-		qDebug() << "Updating code...";
 		//update_code_from_web();
 	}*/
 
