@@ -76,9 +76,9 @@ private slots:
 	void slot_create_parameter_file();
 	//void slot_update_code_from_web();
 	void slot_chainlink();
-	void slot_rtst();
-	void slot_mr_pulse_tool();
-	void slot_run_mr_pulse_tool(QString fname);
+	//void slot_rtst();
+	//void slot_mr_pulse_tool();
+	//void slot_run_mr_pulse_tool(QString fname);
 	void slot_preferences();
 	
 	void slot_about_sequencetree();

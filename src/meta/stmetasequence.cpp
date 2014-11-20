@@ -52,6 +52,8 @@ void STMetaSequence::clearClasses() {
 }
 
 void STMetaSequence::loadFromText(const QList<QString> &txtlines,long &index) {
+	qDebug() << "loadFromText";
+	qDebug() << txtlines;
 	clearClasses();
 	m_link_groups.clear();
 	m_global_parameters.clear();

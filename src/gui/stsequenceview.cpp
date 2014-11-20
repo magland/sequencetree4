@@ -682,7 +682,7 @@ void STSequenceView::slot_resource_activated(QString resource_name) {
 		pulse_file.setValue("timestep",R_timestep->getDouble()/1000);
 		pulse_file.setValue("rephase_time",R_rephase_time->getDouble()/1000);
 		pulse_file.setValue("bandwidth",R_bandwidth->getDouble());
-		emit runMRPulseTool(pulse_fname);
+		//emit runMRPulseTool(pulse_fname);
 	}
 	else {
 		bool something_changed=false;

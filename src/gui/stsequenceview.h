@@ -69,7 +69,7 @@ signals:
 	void compiledChanged();
 	void modificationChanged();
 	void statusMessage(QString msg);
-	void runMRPulseTool(QString fname);
+	//void runMRPulseTool(QString fname);
 private:
 public slots:
 	void slot_compile();
