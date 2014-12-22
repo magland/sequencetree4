@@ -12,8 +12,8 @@ CONFIG	+= qt release console
 QT+=network
 
 #Comment out the following two lines if you don't want to use webkit
-DEFINES += QT_WEB_KIT
-QT+=webkit
+#DEFINES += QT_WEB_KIT
+#QT+=webkit
 
 INCLUDEPATH += .
 DEPENDPATH += .
