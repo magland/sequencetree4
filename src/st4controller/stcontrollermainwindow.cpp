@@ -164,8 +164,10 @@ void STControllerMainWindow::slot_parse() {
 	
 	
 	
-	QDir(ST_TMP_DIR).mkdir("data");
-	QString data_dir=ST_TMP_DIR+"/data";
+	//QDir(ST_TMP_DIR).mkdir("data");
+	//QString data_dir=ST_TMP_DIR+"/data";
+	QDir(QFileInfo(fname).path()).mkdir("ST_parse_data");
+	QString data_dir=QFileInfo(fname).path()+"/ST_parse_data";
 	erase_all_files_in_directory(data_dir);
 	
 	{

@@ -437,9 +437,11 @@ void STMainWindow::slot_read_raw_data() {
 	currentSequenceView()->writeRawTemplateFile(raw_template_fname);	
 	ReadRawDataDlg dlg;
 	dlg.setRawDataTemplate(raw_template_fname);
+	QString raw_data_path=dlg.rawDataPath();
 	if (dlg.exec()==QDialog::Accepted) {
 		STMetaSequence *Seq=currentSequence();
-		QString data_dir=ST_TMP_DIR+"/data";
+		//QString data_dir=ST_TMP_DIR+"/data";
+		QString data_dir=QFileInfo(raw_data_path).path()+"/ST_parse_data";
 		Seq->write(data_dir+"/"+QFileInfo(Seq->fileName()).fileName());
 		write_text_file(data_dir+"/reconstruction.ch",Seq->reconstructionCode());		
 		
@@ -464,8 +466,6 @@ void STMainWindow::slot_read_raw_data() {
 			QProcess::startDetached(exec,args);
 		#endif		
 	}
-	
-	
 }
 
 /*void STMainWindow::slot_update_code_from_web() {

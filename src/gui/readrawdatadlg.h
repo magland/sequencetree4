@@ -23,6 +23,9 @@ public:
 	ReadRawDataDlg(QWidget *parent=0) : QDialog(parent) {
 		ui.setupUi(this);
 	}
+	QString rawDataPath() {
+		return ui.raw_data->text();
+	}
 	void setRawDataTemplate(QString fname) {
 		ui.raw_data_template->setText(fname);
 		QSettings settings("Magland","SequenceTree4");
@@ -41,15 +44,21 @@ public:
 		
 		QDir(ST_TMP_DIR).mkdir("data");
 		
-		QDir(ST_TMP_DIR).mkdir("data");
-		QString data_dir=ST_TMP_DIR+"/data";
+		QString raw_path=ui.raw_data->text();
+		QDir(QFileInfo(raw_path).path()).mkdir("ST_parse_data");		
+		
+		//QDir(ST_TMP_DIR).mkdir("data");
+		//QString data_dir=ST_TMP_DIR+"/data";
+		QString data_dir=QFileInfo(raw_path).path()+"/ST_parse_data";
 		erase_all_files_in_directory(data_dir);		
 		
 		
 		DistributeRawDataStruct X;
-		X.output_directory=ST_TMP_DIR+"/data";
+		
+		//X.output_directory=ST_TMP_DIR+"/data";
+		X.output_directory=data_dir;
 		X.template_fname=ui.raw_data_template->text();
-		X.data_fname=ui.raw_data->text();
+		X.data_fname=raw_path;
 		X.num_channels=ui.num_channels->text().toInt();
 		if (ui.siemens_va_format->isChecked()) {
 			X.header_size=128;
