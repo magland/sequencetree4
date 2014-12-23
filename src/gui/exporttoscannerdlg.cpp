@@ -327,7 +327,7 @@ bool export_to_siemens(STMetaSequence *Seq,QString scanner_version,QString seque
 	
 	if (!copy_all_files_between_directories(frameworkdir,tmp_sequence_dirname,false,false)) return false;
 	if (!copy_all_files_between_directories(scanner_directory,tmp_sequence_dirname,false,false)) return false;
-	if (scanner_version.indexOf("VD")!=0) {
+	if (scanner_version.indexOf("siemens_vd")!=0) {
 		if (!copy_all_files_between_directories(scanner_common_directory,tmp_sequence_dirname,false,false)) return false;
 	}
 	
