@@ -122,7 +122,7 @@ void STSourceEditor::update() {
 				QFont fnt=ui.class_box->itemData(indx,Qt::FontRole).toString();
 				fnt.setBold(true);
 				ui.class_box->setItemData(indx,fnt,Qt::FontRole);
-				ui.class_box->setItemData(indx,Qt::darkMagenta,Qt::ForegroundRole);
+				ui.class_box->setItemData(indx,QColor(Qt::darkMagenta),Qt::ForegroundRole);
 			}
 			else if (m_sequence->metaClass(cname)->isUserDefined()) {
 				QFont fnt=ui.class_box->itemData(indx,Qt::FontRole).toString();

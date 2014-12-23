@@ -8,7 +8,7 @@
 
 QList<long> read_mda_dims(QString mda_fname) {
 	QList<long> ret;
-	FILE *inf=fopen(mda_fname.toAscii().data(),"rb");
+	FILE *inf=fopen(mda_fname.toLatin1().data(),"rb");
 	if (!inf) return ret;
 
 	bool is_sparse=false;

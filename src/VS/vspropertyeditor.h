@@ -21,7 +21,7 @@ public:
 	QObject *object() {return m_object;}
 	void reset_value() {
 		if (!m_object) return;
-		m_value=m_object->property(m_name.toAscii().data());
+		m_value=m_object->property(m_name.toLatin1().data());
 		setText(1,m_value.toString());
 	}
 private:

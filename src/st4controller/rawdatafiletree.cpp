@@ -67,7 +67,7 @@ QString get_sequence_name(QString raw_fname) {
 }
 
 int get_num_channels(QString raw_fname) {
-	FILE *inf=fopen(raw_fname.toAscii().data(),"rb");
+	FILE *inf=fopen(raw_fname.toLatin1().data(),"rb");
 	if (!inf) return 0;
 	quint32 header_size;
 	fread(&header_size,sizeof(quint32),1,inf);

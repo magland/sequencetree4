@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QTextCursor>
+#include <QMimeData>
 #include <QDebug>
 
 void defaultedit_blockdata::add_marker(const haiq_marker &marker) {
@@ -84,11 +85,11 @@ void HaiQTextEdit::select_current_word() {
 	QTextCursor cursor=textCursor();
 	QString line=cursor.block().text();
 	int index=cursor.columnNumber();
-	while ((index-1>=0)&&(is_keyword_character(line[index-1].toAscii()))) {
+	while ((index-1>=0)&&(is_keyword_character(line[index-1].toLatin1()))) {
 		index--;
 		cursor.movePosition(QTextCursor::Left);
 	}
-	while ((index<line.count())&&(is_keyword_character(line[index].toAscii()))) {
+	while ((index<line.count())&&(is_keyword_character(line[index].toLatin1()))) {
 		index++;
 		cursor.movePosition(QTextCursor::Right,QTextCursor::KeepAnchor);
 	}

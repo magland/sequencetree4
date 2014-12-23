@@ -49,7 +49,7 @@ bool export_to_imageJ(Mda &X, int d1,int d2,int d3) {
 	#endif
 	
 	qDebug()  << "Writing file: " << tmp_fname << "...";
-	FILE *outf=fopen(tmp_fname.toAscii().data(),"wb");
+	FILE *outf=fopen(tmp_fname.toLatin1().data(),"wb");
 	if (!outf) {
 		qWarning() << "Unable to open temporary file in imageJ directory.";
 		return false;
@@ -79,12 +79,12 @@ bool export_to_imageJ(Mda &X, int d1,int d2,int d3) {
 
 
 	qDebug()  << "Writing file: " << macro_fname << "...";
-	FILE *macroF=fopen(macro_fname.toAscii().data(),"w");
+	FILE *macroF=fopen(macro_fname.toLatin1().data(),"w");
 	if (!macroF) {
 		qWarning() << "Unable to open file for writing:" << macro_fname;
 		return false;
 	}
-	fprintf(macroF,"run(\"Raw...\", \"open=%s image=[32-bit Real] width=%d height=%d offset=0 number=%d gap=0 little-endian\");\n",tmp_fname2.toAscii().data(),N1,N2,N3);
+	fprintf(macroF,"run(\"Raw...\", \"open=%s image=[32-bit Real] width=%d height=%d offset=0 number=%d gap=0 little-endian\");\n",tmp_fname2.toLatin1().data(),N1,N2,N3);
 	fclose(macroF);	
 	
 	QString exec=imageJ_exec;

@@ -147,7 +147,7 @@ void replace_string_in_files(QString dirname,QString before,QString after) {
 	QDir dir(dirname);
 	QStringList list=dir.entryList(QStringList("*"),QDir::Files|QDir::NoDotAndDotDot);
 	foreach (QString fname,list) {
-		replace_string_in_file(dirname+"/"+fname,before.toAscii().data(),after.toAscii().data());
+		replace_string_in_file(dirname+"/"+fname,before.toLatin1().data(),after.toLatin1().data());
 	}
 }
 
@@ -183,7 +183,7 @@ void insert_snippet_in_file(QString fname,QString keyword,QString code) {
 		}
 		if (!file.open(QIODevice::WriteOnly)) 
 			return;
-		file.write(txt2.toAscii());
+		file.write(txt2.toLatin1());
 		file.close();
 	}
 }

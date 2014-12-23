@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QTextBlock>
 #include <QList>
+#include <QMimeData>
 
 #include "haiqmarker.h"
 

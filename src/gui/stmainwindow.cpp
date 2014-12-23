@@ -31,7 +31,7 @@
 #include <QUrl>
 #include "exporttoscannerdlg.h"
 #include "openfilefromwebdlg.h"
-#include "httpdownloader.h"
+//#include "httpdownloader.h"
 #include "stcommon.h"
 //#include "update_code_from_web.h"
 #define MSG_DELAY 3000
@@ -408,7 +408,7 @@ void STMainWindow::slot_export_to_scanner() {
 	dlg.exec();
 }
 void STMainWindow::slot_update_export_to_scanner() {
-	QDesktopServices::openUrl(QUrl("http://www.thesouthpoles.com/sequencetree/download_export_module.php"));
+	//QDesktopServices::openUrl(QUrl("http://www.thesouthpoles.com/sequencetree/download_export_module.php"));
 }
 void STMainWindow::slot_export_to_virtual_scanner() {
 	if (!currentSequence()) return;

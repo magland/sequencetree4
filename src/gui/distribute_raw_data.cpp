@@ -5,7 +5,7 @@
 #include "mda.h"
 
 void read_template_records(QList<RawTemplateRecord> &template_records,QString template_fname) {
-	FILE *template_file=fopen(template_fname.toAscii().data(),"rb");
+	FILE *template_file=fopen(template_fname.toLatin1().data(),"rb");
 	if (!template_file) return;	
 	while (!feof(template_file)) {	
 		int code;
@@ -263,7 +263,7 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 	
 	//fill data
 	//Open file and skip beginning header
-	FILE *dataf=fopen(X.data_fname.toAscii().data(),"rb");
+	FILE *dataf=fopen(X.data_fname.toLatin1().data(),"rb");
 	if (!dataf) return;	
 	if (X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VA) { //read header for VA
 		for (int hi=0; hi<32;  hi++) {
@@ -320,6 +320,6 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 		#ifdef WIN32
 			fname.replace("/","\\");
 		#endif
-		raw_file_structs[j].array.write(fname.toAscii().data());
+		raw_file_structs[j].array.write(fname.toLatin1().data());
 	}
 }

@@ -80,11 +80,11 @@ void RealtimeOutputHandler::write_packet() {
 	#ifdef WIN32
 	fname.replace("/","\\");
 	#endif
-	FILE *outf=fopen(fname.toAscii().data(),"wb");
+	FILE *outf=fopen(fname.toLatin1().data(),"wb");
 	
 	QString header_txt=QString("tProtocolName \"%1\"\n\n").arg(m_sequence_name);
 	char header_txt_2[500];
-	strcpy(header_txt_2,header_txt.toAscii().data());
+	strcpy(header_txt_2,header_txt.toLatin1().data());
 	fwrite(header_txt_2,sizeof(char),header_txt.count(),outf);
 	for (int j=0; j<1000; j++) {
 		unsigned char dummy=1;
@@ -230,7 +230,7 @@ bool run_virtual_scan(STSimScannerBlockList &Blocks, VSAbstractScanner *S, QStri
 	#ifdef WIN32
 	output_fname.replace("/","\\");
 	#endif
-	FILE *outf=fopen(output_fname.toAscii().data(),"wb");
+	FILE *outf=fopen(output_fname.toLatin1().data(),"wb");
 	if (!outf) return false;
 	for (int ct=0; ct<32; ct++) {
 		quint8 dummy=0;

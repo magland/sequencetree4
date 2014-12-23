@@ -35,7 +35,7 @@ void SampledPhantom::setKspace(QString kspace_fname) {
 	#ifdef WIN32 //;
 	kspace_fname.replace("/","\\");
 	#endif
-	m_kspace_data.read(kspace_fname.toAscii().data());
+	m_kspace_data.read(kspace_fname.toLatin1().data());
 }
 void SampledPhantom::setResolution(double dx,double dy,double dz) {
 	m_dx=dx;

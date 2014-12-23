@@ -161,7 +161,7 @@ void STSimScannerBlockList::write(SString file_name) {
 	#ifdef USING_SSTRING
 	FILE *outf=fopen(file_name.data(),"wb");
 	#else
-	FILE *outf=fopen(file_name.toAscii().data(),"wb");
+	FILE *outf=fopen(file_name.toLatin1().data(),"wb");
 	#endif
 	if (!outf) return;
 	fwrite(&m_max_RF_amplitude,1,sizeof(double),outf);
@@ -176,7 +176,7 @@ void STSimScannerBlockList::read(SString file_name) {
 	#ifdef USING_SSTRING
 	FILE *inf=fopen(file_name.data(),"rb");
 	#else
-	FILE *inf=fopen(file_name.toAscii().data(),"rb");
+	FILE *inf=fopen(file_name.toLatin1().data(),"rb");
 	#endif
 	if (!inf) return;
 	fread(&m_max_RF_amplitude,1,sizeof(double),inf);

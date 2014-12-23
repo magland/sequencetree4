@@ -2,6 +2,7 @@
 
 TEMPLATE =	app
 CONFIG -= app_bundle
+QT += widgets
 
 OBJECTS_DIR = ./build
 MOC_DIR = ./build
@@ -23,11 +24,13 @@ SOURCES += main.cpp
 FORMS +=
 
 INCLUDEPATH += ../../code/framework
+VPATH += ../../code/framework
 DEPENDPATH += ../../code/framework
 HEADERS += sstring.h slist.h stresources.h
 SOURCES += sstring.cpp slist.cpp stresources.cpp
 
 INCLUDEPATH += ../../simulator
+VPATH += ../../simulator
 DEPENDPATH += ../../simulator
 HEADERS += stsimscannerblocklist.h
 SOURCES += stsimscannerblocklist.cpp
@@ -48,8 +51,8 @@ HEADERS += editresourcedlg.h
 SOURCES += editresourcedlg.cpp
 FORMS += editresourcedlg.ui
 
-HEADERS += httpdownloader.h
-SOURCES += httpdownloader.cpp
+#HEADERS += httpdownloader.h
+#SOURCES += httpdownloader.cpp
 
 HEADERS += streconstructionhighlighter.h
 SOURCES += streconstructionhighlighter.cpp
@@ -60,11 +63,13 @@ HEADERS += stcommon.h
 #SOURCES += update_code_from_web.cpp
 
 INCLUDEPATH += ../meta
+VPATH += ../meta
 DEPENDPATH += ../meta
 HEADERS += stmetaclass.h stmetanode.h stmetasequence.h stmetasequencesimulator.h
 SOURCES += stmetaclass.cpp stmetanode.cpp stmetasequence.cpp stmetasequencesimulator.cpp
 
 INCLUDEPATH += editor
+VPATH += editor
 DEPENDPATH += editor
 HEADERS += stsourceeditor.h cpphighlighter.h haiqtextedit.h defaulteditorwindow.h haiqtexteditgroup.h haiqmarker.h haiqglobal.h
 SOURCES += stsourceeditor.cpp cpphighlighter.cpp haiqtextedit.cpp defaulteditorwindow.cpp haiqtexteditgroup.cpp haiqmarker.cpp
@@ -75,6 +80,7 @@ SOURCES += exporttoscannerdlg.cpp
 FORMS += exporttoscannerdlg.ui
 
 INCLUDEPATH += ../shared
+VPATH += ../shared
 DEPENDPATH += ../shared
 HEADERS += mda.h complex.h chainlinkglobal.h #simulation_sequence.h
 SOURCES += mda.cpp complex.cpp #simulation_sequence.cpp

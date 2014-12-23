@@ -26,7 +26,7 @@
 #include <QStringList>
 
 QString read_text_file(QString fname) {
-	/*FILE *inf=fopen(fname.toAscii().data(),"r");
+	/*FILE *inf=fopen(fname.toLatin1().data(),"r");
 	if (!inf) return "";
 	QString ret;
 	while (!feof(inf)) {
@@ -42,10 +42,10 @@ QString read_text_file(QString fname) {
 	return ret;
 }
 bool write_text_file(const QString & fname,const QString &txt) {
-	/*FILE *outf=fopen(fname.toAscii().data(),"w");
+	/*FILE *outf=fopen(fname.toLatin1().data(),"w");
 	if (!outf) return false;
 	for (long j=0; j<txt.count(); j++) {
-		char c=txt[j].toAscii();
+		char c=txt[j].toLatin1();
 		fputc(c,outf);
 	}
 	fclose(outf);
@@ -53,7 +53,7 @@ bool write_text_file(const QString & fname,const QString &txt) {
 	QFile file(fname);
 	if (!file.open(QIODevice::WriteOnly|QIODevice::Text))
 		return false;
-	file.write(txt.toAscii());
+	file.write(txt.toLatin1());
 	file.close();
 	return true;
 }

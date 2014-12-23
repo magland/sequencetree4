@@ -2,6 +2,7 @@
 
 TEMPLATE =	app
 CONFIG -= app_bundle
+QT += widgets
 
 OBJECTS_DIR =	./build
 MOC_DIR =   	./build
@@ -19,11 +20,13 @@ FORMS += rvmainwindow.ui rvfileview.ui
 
 INCLUDEPATH += ../shared
 DEPENDPATH += ../shared
+VPATH += ../shared
 HEADERS += stcommon.h mda.h complex.h
 SOURCES += mda.cpp complex.cpp
 
 INCLUDEPATH += viewmda
 DEPENDPATH += viewmda
+VPATH += viewmda
 HEADERS += viewmdamodel.h viewmdawidget2d.h viewmdawidget1d.h viewmdawidget.h brightnesstool.h fftw_library.h apply_fft.h fftw3.h
 SOURCES += viewmdamodel.cpp viewmdawidget2d.cpp viewmdawidget1d.cpp viewmdawidget.cpp brightnesstool.cpp fftw_library.cpp apply_fft.cpp
 FORMS += viewmdawidget.ui brightnesstool.ui

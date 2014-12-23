@@ -25,7 +25,7 @@ void VSPropertyEditor::setObject(QObject *obj) {
 	const QMetaObject *meta=obj->metaObject();
 	for (int j=0; j<meta->propertyCount(); j++) {
 		QString name=meta->property(j).name();
-		//QVariant value=obj->property(name.toAscii().data());
+		//QVariant value=obj->property(name.toLatin1().data());
 		if (name!="objectName")
 			addTopLevelItem(new VSPropertyEditorItem(m_object,name));
 	}
@@ -38,7 +38,7 @@ void VSPropertyEditor::setObject(QObject *obj) {
 		const QMetaObject *chmeta=ch->metaObject();
 		for (int j=0; j<chmeta->propertyCount(); j++) {
 			QString name=chmeta->property(j).name();
-			//QVariant value=ch->property(name.toAscii().data());
+			//QVariant value=ch->property(name.toLatin1().data());
 			if (name!="objectName")
 				chitem->addChild(new VSPropertyEditorItem(ch,name));
 		}
@@ -61,7 +61,7 @@ void VSPropertyEditor::slot_item_changed(QTreeWidgetItem *item,int col) {
 	VSPropertyEditorItem *item2=(VSPropertyEditorItem *)item;
 	if (!item2) return;
 	if (!item2->object()) return;
-	item2->object()->setProperty(item2->name().toAscii().data(),item2->value());
+	item2->object()->setProperty(item2->name().toLatin1().data(),item2->value());
 	update_all_values();
 }
 

@@ -31,7 +31,7 @@ QString qstr(const SString &X) {
 }
 
 SString sstr(const QString &X) {
-	return SString(X.toAscii().data());
+	return SString(X.toLatin1().data());
 }
 
 STMetaNode::STMetaNode() {

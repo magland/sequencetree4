@@ -882,7 +882,7 @@ void STMetaSequence::writeLoadParametersFileSource(QString fname) {
 			txt += "//"+line+"\n";
 			line += "\n";
 			for (int j=0; j<line.count(); j++) {
-				int charcode=line[j].toAscii();
+				int charcode=line[j].toLatin1();
 				txt+= QString("0x%1,").arg(QString::number(charcode,16));
 				ct++;
 			}
@@ -913,7 +913,7 @@ void STMetaSequence::writeLoadParametersFileSource(QString fname) {
 			txt += "//"+line+"\n";
 			line += "\n";
 			for (int j=0; j<line.count(); j++) {
-				int charcode=line[j].toAscii();
+				int charcode=line[j].toLatin1();
 				txt+= QString("0x%1,").arg(QString::number(charcode,16));
 				ct++;
 			}

@@ -8,6 +8,7 @@ TARGET = basicphantoms
 
 INCLUDEPATH += ../.. ../../../shared ../shared
 DEPENDPATH += ../.. ../../../shared ../shared
+VPATH += ../.. ../../../shared ../shared
 
 HEADERS += basicphantoms.h
 SOURCES += basicphantoms.cpp

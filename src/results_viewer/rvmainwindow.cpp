@@ -22,7 +22,7 @@ void RVMainWindow::slot_file_activated(QString fname) {
 	if (suf=="mda") {
 		ViewmdaWidget *W=new ViewmdaWidget(this);
 		Mda X;
-		X.read(fname.toAscii().data());
+		X.read(fname.toLatin1().data());
 		W->setArray(X);
 		W->setProperty("fileName",fname);
 		ui.tabWidget->addTab(W,QFileInfo(fname).fileName());

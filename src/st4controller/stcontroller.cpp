@@ -102,7 +102,7 @@ void STController::check_for_new_sequences() {
 
 
 QByteArray extract_siemens_vb_header(QString raw_fname) {
-	FILE *inf=fopen(raw_fname.toAscii().data(),"rb");
+	FILE *inf=fopen(raw_fname.toLatin1().data(),"rb");
 	if (!inf) return "";
 	QByteArray ret;
 	quint32 header_size;

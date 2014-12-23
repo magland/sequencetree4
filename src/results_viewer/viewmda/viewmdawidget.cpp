@@ -358,14 +358,14 @@ void ViewmdaWidget::slot_darker() {
 void ViewmdaWidget::slot_save_as() {
 	QString fname=QFileDialog::getSaveFileName(this,"Save array as...",QDir::currentPath());		
 	if (!fname.isEmpty()) {
-		m_model.array().write(fname.toAscii().data());
+		m_model.array().write(fname.toLatin1().data());
 	}
 }
 void ViewmdaWidget::slot_open() {
 	QString fname=QFileDialog::getOpenFileName(this,"Open array...",QDir::currentPath());		
 	if (!fname.isEmpty()) {
 		Mda A;
-		A.read(fname.toAscii().data());
+		A.read(fname.toLatin1().data());
 		m_model.setArray(A);
 	}
 }

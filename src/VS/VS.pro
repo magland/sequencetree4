@@ -2,6 +2,7 @@
 
 TEMPLATE =	app
 CONFIG -= app_bundle
+QT += widgets
 
 OBJECTS_DIR =	./build
 MOC_DIR =   	./build
@@ -25,27 +26,32 @@ SOURCES += vsabstractscanner.cpp vsobjectstate.cpp vsobjecttransformation.cpp vs
 
 INCLUDEPATH += ../../simulator
 DEPENDPATH += ../../simulator
+VPATH += ../../simulator
 HEADERS += stsimscannerblocklist.h
 SOURCES += stsimscannerblocklist.cpp
 
 INCLUDEPATH += ../meta
 DEPENDPATH += ../meta
+VPATH += ../meta
 HEADERS += stcommon.h
 HEADERS += stmetasequencesimulator.h stmetasequence.h stmetanode.h stmetaclass.h
 SOURCES += stmetasequencesimulator.cpp stmetasequence.cpp stmetanode.cpp stmetaclass.cpp
 
 INCLUDEPATH += ../../code/framework
 DEPENDPATH += ../../code/framework
+VPATH += ../../code/framework
 HEADERS += slist.h sstring.h stresources.h
 SOURCES += slist.cpp sstring.cpp stresources.cpp
 
 INCLUDEPATH += ../shared
 DEPENDPATH += ../shared
+VPATH += ../shared
 HEADERS += mda.h complex.h chainlinkglobal.h #simulation_sequence.h
 SOURCES += mda.cpp complex.cpp #simulation_sequence.cpp
 
 INCLUDEPATH += ../gui
 DEPENDPATH += ../gui
+VPATH += ../gui
 HEADERS += distribute_raw_data.h stringchooserdlg.h stconfigurationdlg.h
 SOURCES += distribute_raw_data.cpp stringchooserdlg.cpp stconfigurationdlg.cpp
 HEADERS += stglobalview.h stcompilelog.h
