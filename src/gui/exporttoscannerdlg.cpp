@@ -327,7 +327,7 @@ bool export_to_siemens(STMetaSequence *Seq,QString scanner_version,QString seque
 	
 	if (!copy_all_files_between_directories(frameworkdir,tmp_sequence_dirname,false,false)) return false;
 	if (!copy_all_files_between_directories(scanner_directory,tmp_sequence_dirname,false,false)) return false;
-	if (scanner_version.indexOf("VD")!=0) {
+	if (scanner_version.indexOf("siemens_vd")!=0) {
 		if (!copy_all_files_between_directories(scanner_common_directory,tmp_sequence_dirname,false,false)) return false;
 	}
 	
@@ -349,11 +349,11 @@ bool export_to_siemens(STMetaSequence *Seq,QString scanner_version,QString seque
 	qDebug()  << "Copying files from" << frameworkdir << "to" << sequence_directory;
 	if (!copy_all_files_between_directories(frameworkdir,sequence_directory,false,true)) return false;
 	
-	qDebug()  << "Copying" << executable_fname;
+    /*qDebug()  << "Copying" << executable_fname;
 	QFile::remove(sequence_directory+"/"+sequence_name+".exe");
 	QFile::copy(executable_fname,sequence_directory+"/"+sequence_name+".exe");
 	QFile::remove(sequence_directory+"/"+sequence_name+".exe.manifest");
-	QFile::copy(executable_fname+".manifest",sequence_directory+"/"+sequence_name+".exe.manifest");
+    QFile::copy(executable_fname+".manifest",sequence_directory+"/"+sequence_name+".exe.manifest");*/
 	
 	return true;	
 }
