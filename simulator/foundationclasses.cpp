@@ -1,571 +1,5 @@
 #include "foundationclasses.h"
 
-////// STRefocus //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STRefocus::STRefocus() {
-	ST_CLASS(STRefocus,STNode)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STVector3, gradient_amplitude, (0,0,0),uT/mm)
-	ST_PARAMETER(STReal, slice_thickness, 0,mm)
-	ST_PARAMETER(STReal, bandwidth, 1000,Hz)
-	ST_PARAMETER(STVector3, crusher_moment, (0,0,0), [uT/mm]-us)
-	ST_PARAMETER(STReal, flip_angle, 180, degrees);
-	/* ST_CHILDREN */
-	ST_CHILD(STGradientMom, Crusher1)
-	ST_CHILD(STGradientAmp, SliceGradient)
-	ST_CHILD(STRF, RF)
-	ST_CHILD(STGradientMom, Crusher2)
-	
-	setReferenceChildIndex(2);
-}
-bool STRefocus::prepare() {
-	if (!sequence()) return false;
-	if (!scanner()) return false;
-	//Prepare RF
-	if ((slice_thickness.isModified())||(bandwidth.isModified())||(gradient_amplitude.isModified())) {
-		SliceGradient->amplitude=gradient_amplitude;
-		if ((slice_thickness>0)&&(gradient_amplitude.abs()>0)) {
-			double gradamp=gradient_amplitude.abs();
-			bandwidth=gradamp*slice_thickness*sequence()->gamma;
-		}
-		RF->bandwidth=bandwidth;
-	}
-	if (flip_angle.isModified())
-		RF->flip_angle=flip_angle;
-	if (RF->isModified()) 
-		if (!RF->prepare()) return false;
-	double RF_duration=RF->duration();
-	RF_duration=scanner()->rounduptime(RF_duration);
-	
-	//Prepare Slice Gradient
-	SliceGradient->plateau_time=RF_duration;
-	if (SliceGradient->isModified()) 
-		if (!SliceGradient->prepare()) return false;
-
-	//Prepare Crushers
-	if (crusher_moment.isModified()) {
-		Crusher1->setMoment(crusher_moment);
-		Crusher2->setMoment(crusher_moment);
-		if (!Crusher1->prepare()) return false;
-		if (!Crusher2->prepare()) return false;
-	}
-	
-	//set gradient information
-	RF->setGradientAmplitude(SliceGradient->amplitude);
-	RF->slice_thickness=slice_thickness;
-	RF->setInitialTotalMoment(initialTotalMoment()+Crusher1->totalGradientMoment()+SliceGradient->amplitude*SliceGradient->ramp_time_1/2);
-	
-	//Set start times
-	Crusher1->setRelativeStartTime(0);
-	SliceGradient->setRelativeStartTime(Crusher1->duration());
-	RF->setRelativeStartTime(SliceGradient->relativeStartTime()+SliceGradient->ramp_time_1);
-	if (SliceGradient->duration()>0)
-		Crusher2->setRelativeStartTime(SliceGradient->relativeStartTime()+SliceGradient->duration());
-	else
-		Crusher2->setRelativeStartTime(RF->relativeStartTime()+RF->duration());
-	
-	setModified(false);
-	return true;
-}
-Vector3 STRefocus::terminalMoment() {
-	Vector3 ret=initialMoment()+crusher_moment;
-	double effective_time_1=SliceGradient->ramp_time_1/2+RF->referenceTime();
-	double effective_time_2=SliceGradient->ramp_time_2/2+SliceGradient->plateau_time-RF->referenceTime();
-	ret=ret+SliceGradient->amplitude*effective_time_1;
-	ret=ret*(-1); //refocus
-	ret=ret+SliceGradient->amplitude*effective_time_2;
-	ret=ret+crusher_moment;
-	return ret;
-}
-
-double STRefocus::duration() {
-	return Crusher2->relativeStartTime()+Crusher2->duration();
-}
-
-
-////// STGradientEchoBlock //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STGradientEchoBlock::STGradientEchoBlock() {
-	ST_CLASS(STGradientEchoBlock,STChain)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal,TE,6000,microsec)
-	ST_PARAMETER(STReal,TR,50000,microsec)
-	ST_PARAMETER(STVector3, kspace_dir, (1,0,0),)
-	ST_PARAMETER(STVector3, kspace_echo, (0,0,0),)
-	ST_PARAMETER(STReal, excite_time, 1000, microsec)
-	/* ST_CHILDREN */
-	ST_CHILD(STExcite, Excite)
-	ST_CHILD(STAcquire, Acquire)
-	ST_CHILD(STEncode, Rewind)
-	
-	ST_DEFAULT(Excite->RF,STSincRF)
-	ST_DEFAULT(Excite->RF->num_lobes_left,4)
-	ST_DEFAULT(Excite->RF->num_lobes_right,1)
-	ST_DEFAULT(Excite->RF->flip_angle,45)
-	ST_DEFAULT(Excite->gradient_amplitude,(0,0,10))
-	ST_DEFAULT(Excite->slice_thickness,10)
-	ST_DEFAULT(Rewind->moment,(0,0,100000))
-}
-bool STGradientEchoBlock::initialize() {
-	STChain::initialize();
-	return true;
-}
-bool STGradientEchoBlock::prepare() {
-	/* ST_ALIGNMENTS */
-	ST_ALIGN(Excite, ST_ALIGN_LEFT, excite_time, 0)
-	ST_ALIGN(Acquire, ST_ALIGN_RELATIVE, TE, 0)
-	ST_ALIGN(Rewind, ST_ALIGN_LEFT, 0, 0)
-	
-	if (!sequence()) return false;
-	if (TR.isModified()) setDuration(TR);
-	Acquire->moment_per_point=sequence()->kspace2moment(kspace_dir);
-	Acquire->echo_moment=sequence()->kspace2moment(kspace_echo);
-	return STChain::prepare();
-}
-
-
-////// STSpinEchoBlock //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STSpinEchoBlock::STSpinEchoBlock() {
-	ST_CLASS(STSpinEchoBlock,STChain)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal,TE,20000,microsec)
-	ST_PARAMETER(STReal,TR,50000,microsec)
-	ST_PARAMETER(STVector3, kspace_dir, (1,0,0),)
-	ST_PARAMETER(STVector3, kspace_echo, (0,0,0),)
-	/* ST_CHILDREN */
-	ST_CHILD(STExcite, Excite)
-	ST_CHILD(STRefocus, Refocus)
-	ST_CHILD(STAcquire, Acquire)
-	ST_CHILD(STEncode, Rewind)
-}
-bool STSpinEchoBlock::initialize() {
-	STChain::initialize();
-	return true;
-}
-bool STSpinEchoBlock::prepare() {
-	/* ST_ALIGNMENTS */
-	ST_ALIGN(Excite, ST_ALIGN_LEFT, 1000, 0)
-	ST_ALIGN(Refocus, ST_ALIGN_RELATIVE, TE/2, 0)
-	ST_ALIGN(Acquire, ST_ALIGN_RELATIVE, TE, 0)
-	ST_ALIGN(Rewind, ST_ALIGN_LEFT, 0, 0)
-	
-	if (!sequence()) return false;
-	if (TR.isModified()) setDuration(TR);
-	Acquire->moment_per_point=sequence()->kspace2moment(kspace_dir);
-	Acquire->echo_moment=sequence()->kspace2moment(kspace_echo);
-	return STChain::prepare();
-}
-
-
-////// STRadialLoop //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STRadialLoop::STRadialLoop() {
-	ST_CLASS(STRadialLoop,STLoop)
-	/* ST_PARAMETERS */	
-	ST_PARAMETER(STIterator,angle,0:1:0 check: 0;90;180;270,degrees)
-	ST_PARAMETER(STIterator,PE,0:1:0,)
-	ST_PARAMETER(STVector3,readout_dir1,(1,0,0),)
-	ST_PARAMETER(STVector3,readout_dir2,(0,1,0),)
-	ST_PARAMETER(STVector3,PE_dir,(0,0,1),)
-	/* ST_CHILDREN */
-	ST_CHILD(STGradientEchoBlock,Block)
-}
-bool STRadialLoop::prepare() {
-	return STLoop::prepare();
-}
-
-
-bool STRadialLoop::loopRun() {
-	Block->kspace_dir=readout_dir1*cos(angle*3.141592/180)+readout_dir2*sin(angle*3.141592/180);
-	Block->kspace_echo=PE_dir*PE;
-	return Block->run();
-}
-
-
-////// STArbAcquire //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STArbAcquire::STArbAcquire() {
-	ST_CLASS(STArbAcquire,STNode)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STVector3,kspace_offset,(0,0,0),)
-	/* ST_CHILDREN */
-	ST_CHILD(STGradientMom, Encode)
-	ST_CHILD(STArbGradient, ReadoutGradient)
-	ST_CHILD(STReadout, Readout)
-	setReferenceChildIndex(2);
-}
-bool STArbAcquire::prepare() {
-	if (!sequence()) return false;
-	if (!scanner()) return false;
-	//Prepare Readout
-	if (Readout->isModified()) 
-		if (!Readout->prepare()) return false;
-	double readout_duration=Readout->duration();
-	readout_duration=scanner()->rounduptime(readout_duration);
-	
-	//Prepare Readout Gradient
-	ReadoutGradient->plateau_time=readout_duration;
-	ReadoutGradient->kspace_offset=kspace_offset;
-	if (ReadoutGradient->isModified()) 
-		if (!ReadoutGradient->prepare()) return false;
-
-	//Prepare Encode
-	Encode->setMoment(initialMoment()*(-1)-ReadoutGradient->ramp1Moment()+ReadoutGradient->momentAt(0));
-	if (Encode->isModified())
-		if (!Encode->prepare()) return false;
-	
-	//Set start times
-	Encode->setRelativeStartTime(0);
-	ReadoutGradient->setRelativeStartTime(Encode->duration());
-	Readout->setRelativeStartTime(ReadoutGradient->relativeStartTime()+ReadoutGradient->ramp_time_1);
-	
-	setModified(false);
-	
-	return true;
-}
-
-double STArbAcquire::duration() {
-	return ReadoutGradient->relativeStartTime()+ReadoutGradient->duration();
-}
-
-
-////// STGradientAmp //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STGradientAmp::STGradientAmp() {
-	ST_CLASS(STGradientAmp,STNode)
-	GX=0;
-	GY=0;
-	GZ=0;
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal, ramp_time_1, 200,microsec)
-	ST_PARAMETER(STReal, plateau_time, 0,microsec)
-	ST_PARAMETER(STReal, ramp_time_2, 200,microsec)
-	ST_PARAMETER(STVector3, amplitude, (0,0,0),uT/mm)
-	/* ST_CHILDREN */
-}
-STGradientAmp::~STGradientAmp() {
-	delete_events();
-}
-void STGradientAmp::delete_events() {
-	if (GX) delete GX; GX=0;
-	if (GY) delete GY; GY=0;
-	if (GZ) delete GZ; GZ=0;
-}
-bool STGradientAmp::initialize() {
-	clearChildren();
-	if (!scanner()) return false;
-	delete_events();
-	GX=scanner()->allocateGradient(this);
-	GY=scanner()->allocateGradient(this);
-	GZ=scanner()->allocateGradient(this);
-	return true;
-}
-bool STGradientAmp::prepare() {
-	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
-	GX->setGradient(1,amplitude.x(),ramp_time_1,plateau_time,ramp_time_2);
-	GY->setGradient(2,amplitude.y(),ramp_time_1,plateau_time,ramp_time_2);
-	GZ->setGradient(3,amplitude.z(),ramp_time_1,plateau_time,ramp_time_2);
-	setModified(false);
-	return true;
-}
-bool STGradientAmp::run() {
-	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
-	if (!scanner()) return false;
-	GX->setStartTime(startTime());
-	GY->setStartTime(startTime());
-	GZ->setStartTime(startTime());
-	if (GX->amplitude()!=0) scanner()->addEvent(GX);
-	if (GY->amplitude()!=0) scanner()->addEvent(GY);
-	if (GZ->amplitude()!=0) scanner()->addEvent(GZ);
-	return true;
-}
-double STGradientAmp::duration() {
-	return ramp_time_1+plateau_time+ramp_time_2;
-}
-Vector3 STGradientAmp::terminalMoment() {
-	return initialMoment()+totalGradientMoment();
-}
-Vector3 STGradientAmp::totalGradientMoment() {
-	return amplitude*(ramp_time_1/2+plateau_time+ramp_time_2/2);
-}
-
-Vector3 STGradientAmp::gradientStartTimes() {
-	double dur=duration();
-	Vector3 ret(dur,dur,dur);
-	if (amplitude.x()!=0) ret.setX(0);
-	if (amplitude.y()!=0) ret.setY(0);
-	if (amplitude.z()!=0) ret.setZ(0);
-	return ret;
-}
-Vector3 STGradientAmp::gradientEndTimes() {
-	double dur=duration();
-	Vector3 ret(0,0,0);
-	if (amplitude.x()!=0) ret.setX(dur);
-	if (amplitude.y()!=0) ret.setY(dur);
-	if (amplitude.z()!=0) ret.setZ(dur);
-	return ret;
-}
-
-
-////// STMultiAcquire //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STMultiAcquire::STMultiAcquire() {
-	ST_CLASS(STMultiAcquire,STNode)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STInteger, num_echoes, 1, )
-	ST_PARAMETER(STReal, echo_spacing, 5000, )
-	ST_PARAMETER(STInteger, reference_echo, 0, )
-	ST_PARAMETER(STInteger, alternating, 0, 0 or 1)
-	ST_PARAMETER(STInteger, num_readout_points, 256,)
-	ST_PARAMETER(STReal, dwell_time, 20, microsec)
-	ST_PARAMETER(STReal, ramp_time, 100, microsec)
-	ST_PARAMETER(STVector3, echo_moment, (0,0,0), [uT/mm]-us)
-	ST_PARAMETER(STVector3, moment_per_point, (0,0,0), [uT/mm]-us)
-	ST_PARAMETER(STVector3, step_moment, (0,0,0), [uT/mm]-us)
-	ST_PARAMETER(STReal, maxamp, 0, [uT/mm]-us)
-	ST_PARAMETER(STReal, ramprate, 0, [uT/mm]/us)
-	/* ST_CHILDREN */
-}
-
-bool STMultiAcquire::prepare() {
-	if (!sequence()) return false;
-	if (!scanner()) return false;
-	
-	if (num_echoes.isModified()) {
-		clearChildren();
-		m_echoes.clear();
-		for (int j=0; j<num_echoes; j++) {
-			SString namestr=SString("Echo")+SString::number(j);
-			STAcquire *new_echo=new STAcquire;
-			new_echo->setName(namestr);
-			m_echoes << new_echo;
-			addChild(new_echo);
-			new_echo->initialize();
-		}
-	}
-	if (echo_moment.isModified()||step_moment.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->echo_moment=echo_moment+step_moment*j;
-		}
-	}
-	if (reference_echo.isModified()) {
-		setReferenceChildIndex(reference_echo);
-	}
-	if (moment_per_point.isModified()||alternating.isModified()||reference_echo.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			double sgn=1;
-			if ((alternating)&&((j-reference_echo)%2!=0)) sgn=-1;
-			m_echoes[j]->moment_per_point=moment_per_point*sgn;
-			m_echoes[j]->Readout->round_up_reference_time=(int)((sgn+1)/2);
-		}
-	}
-	if (num_readout_points.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->Readout->N=num_readout_points;
-		}
-	}
-	if (dwell_time.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->Readout->dwell_time=dwell_time;
-		}
-	}
-	if (ramp_time.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->ReadoutGradient->ramp_time_1=ramp_time;
-			m_echoes[j]->ReadoutGradient->ramp_time_2=ramp_time;
-		}
-	}
-	if (maxamp.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->Encode->maxamp=maxamp;
-		}
-	}
-	if (ramprate.isModified()) {
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->Encode->ramprate=ramprate;
-		}
-	}
-	
-	Vector3 mom=initialMoment();
-	Vector3 totmom=initialTotalMoment();
-	{for (int j=0; j<m_echoes.count(); j++) {
-		m_echoes[j]->setInitialMoment(mom);
-		m_echoes[j]->setInitialTotalMoment(totmom);
-		if (!m_echoes[j]->prepare()) return false;
-		mom=mom+m_echoes[j]->totalGradientMoment();
-		totmom=totmom+m_echoes[j]->totalGradientMoment();
-	}}
-	
-	if (m_echoes.count()>0) {
-		double ref_time=m_echoes[0]->relativeStartTime()+m_echoes[0]->referenceTime();
-		for (int j=0; j<m_echoes.count(); j++) {
-			m_echoes[j]->setRelativeStartTime(ref_time+echo_spacing*j-m_echoes[j]->referenceTime());
-		}
-	}
-	
-	//check for overlaps
-	{for (int j=0; j<m_echoes.count(); j++) {
-		if (j==0) {
-			if (m_echoes[j]->relativeStartTime()<0) {
-				SString str=SString("Error in ")+name()+", start time for "+m_echoes[j]->name()+" is negative";
-				reportError(str);
-				return false;
-			}
-		}
-		else {
-			if (overlaps(m_echoes[j-1],m_echoes[j])) {
-				SString str=SString("Error in ")+name()+", "+m_echoes[j-1]->name()+" overlaps "+m_echoes[j]->name();
-				reportError(str);
-				return false;
-			}
-		}
-	}}
-	
-	
-	
-	return true;
-}
-
-double STMultiAcquire::duration() {
-	if (m_echoes.count()==0) return 0;
-	int index=m_echoes.count()-1;
-	return m_echoes[index]->relativeStartTime()+m_echoes[index]->duration();
-}
-
-
-void STMultiAcquire::setMDHOnline() {
-	for (int j=0; j<m_echoes.count(); j++) {
-		m_echoes[j]->Readout->scannerCommand("setMDHOnline");
-	}
-}
-
-
-////// STSincRF //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */ 
-
-STSincRF::STSincRF() {
-	ST_CLASS(STSincRF,STRF)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal,num_lobes_left,1,);
-	ST_PARAMETER(STReal,num_lobes_right,1,);
-	/* ST_CHILDREN */
-}
-
-bool STSincRF::prepare() {
-	if ((num_lobes_left.isModified())||(num_lobes_right.isModified())||(bandwidth.isModified())) {
-		double left_duration=(num_lobes_left+1)*1.0E6/bandwidth;
-		double right_duration=(num_lobes_right+1)*1.0E6/bandwidth;
-		if (left_duration+right_duration<=0) return false;
-		pulse_duration=left_duration+right_duration;
-		reference_fraction=left_duration/pulse_duration;
-		setShapeChanged(true);
-	}
-	return STRF::prepare();
-}
-
-void STSincRF::pulseShape(double cycles,double &re,double &im) {
-	double t=cycles*3.141592;
-	if (fabs(t)<0.01)
-		re=1-t*t/6;
-	else
-		re=sin(t)/t;
-	im=0;
-}
-
-
-////// STExcite //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STExcite::STExcite() {
-	ST_CLASS(STExcite,STNode)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STVector3, gradient_amplitude, (0,0,0),uT/mm)
-	ST_PARAMETER(STReal, slice_thickness, 0,mm)
-	ST_PARAMETER(STReal, bandwidth, 1000,Hz)
-	ST_PARAMETER(STInteger, prephase, 1, 0 or 1)
-	/* ST_CHILDREN */
-	ST_CHILD(STGradientMom, Prephase)
-	ST_CHILD(STGradientAmp, SliceGradient)
-	ST_CHILD(STRF, RF)
-	
-	setReferenceChildIndex(2);
-}
-bool STExcite::prepare() {
-	if (!sequence()) return false;
-	if (!scanner()) return false;
-	//Prepare RF
-	if ((slice_thickness.isModified())||(bandwidth.isModified())||(gradient_amplitude.isModified())) {
-		SliceGradient->amplitude=gradient_amplitude;
-		if ((slice_thickness>0)&&(gradient_amplitude.abs()>0)) {
-			double gradamp=gradient_amplitude.abs();
-			bandwidth=gradamp*slice_thickness*sequence()->gamma;
-		}
-		RF->bandwidth=bandwidth;
-	}
-	if (RF->isModified()) 
-		if (!RF->prepare()) return false;
-	double RF_duration=RF->duration();
-	RF_duration=scanner()->rounduptime(RF_duration);
-	
-	//Prepare Slice Gradient
-	SliceGradient->plateau_time=RF_duration;
-	if (SliceGradient->isModified()) 
-		if (!SliceGradient->prepare()) return false;
-
-	//Prepare Prephase
-	if (prephase) {
-		double effective_time_before_excite=SliceGradient->ramp_time_1*0.5+RF->referenceTime();
-		Prephase->setMoment(initialMoment()*(-1)+SliceGradient->amplitude*(effective_time_before_excite)*(-1));
-	}
-	else {
-		Prephase->setMoment(Vector3(0,0,0));
-	}
-	if (Prephase->isModified())
-		if (!Prephase->prepare()) return false;
-		
-	//set gradient information
-	RF->setGradientAmplitude(SliceGradient->amplitude);
-	RF->slice_thickness=slice_thickness;
-	RF->setInitialTotalMoment(initialTotalMoment()+Prephase->totalGradientMoment()+SliceGradient->amplitude*SliceGradient->ramp_time_1/2);
-	
-	//Set start times
-	Prephase->setRelativeStartTime(0);
-	SliceGradient->setRelativeStartTime(Prephase->duration());
-	RF->setRelativeStartTime(SliceGradient->relativeStartTime()+SliceGradient->ramp_time_1);
-	
-	setModified(false);
-	
-	return true;
-}
-Vector3 STExcite::terminalMoment() {
-	if (!SliceGradient) return Vector3(0,0,0);
-	if (!RF) return Vector3(0,0,0);
-	double effective_time=SliceGradient->ramp_time_2/2+SliceGradient->plateau_time-RF->referenceTime();
-	return SliceGradient->amplitude*effective_time;
-}
-
-double STExcite::duration() {
-	return SliceGradient->relativeStartTime()+SliceGradient->duration();
-}
-
-
 ////// STChain //////
 /* BEGIN EXCLUDE */
 /* END EXCLUDE */
@@ -741,236 +175,88 @@ void STChain::alignChild(STNode *childptr,int alignment,double timing,int relati
 }
 
 
-////// STArbGradient //////
+////// STRefocus //////
 /* BEGIN EXCLUDE */
 /* END EXCLUDE */
 
-STArbGradient::STArbGradient() {
-	ST_CLASS(STArbGradient,STNode)
-	GX=0;
-	GY=0;
-	GZ=0;
+STRefocus::STRefocus() {
+	ST_CLASS(STRefocus,STNode)
 	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal, ramp_time_1, 200,microsec)
-	ST_PARAMETER(STReal, plateau_time, 5000,microsec)
-	ST_PARAMETER(STReal, ramp_time_2, 200,microsec)
-	ST_PARAMETER(STVector3, kspace_offset, (0,0,0),)
-	ST_PARAMETER(STReal, peakamp, 0, uT/mm)
-	ST_PARAMETER(STReal, peakslew, 0, [uT/mm]/us)
+	ST_PARAMETER(STVector3, gradient_amplitude, (0,0,0),uT/mm)
+	ST_PARAMETER(STReal, slice_thickness, 0,mm)
+	ST_PARAMETER(STReal, bandwidth, 1000,Hz)
+	ST_PARAMETER(STVector3, crusher_moment, (0,0,0), [uT/mm]-us)
+	ST_PARAMETER(STReal, flip_angle, 180, degrees);
 	/* ST_CHILDREN */
+	ST_CHILD(STGradientMom, Crusher1)
+	ST_CHILD(STGradientAmp, SliceGradient)
+	ST_CHILD(STRF, RF)
+	ST_CHILD(STGradientMom, Crusher2)
+	
+	setReferenceChildIndex(2);
 }
-STArbGradient::~STArbGradient() {
-	delete_events();
-}
-void STArbGradient::delete_events() {
-	if (GX) delete GX; GX=0;
-	if (GY) delete GY; GY=0;
-	if (GZ) delete GZ; GZ=0;
-}
-bool STArbGradient::initialize() {
-	clearChildren();
-	if (!scanner()) return false;
-	delete_events();
-	GX=scanner()->allocateArbGradient(this);
-	GY=scanner()->allocateArbGradient(this);
-	GZ=scanner()->allocateArbGradient(this);
-	return true;
-}
-bool STArbGradient::prepare() {
-	peakamp=0;
-	peakslew=0;
-	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
-	double hold_peakamp=0;
-	double hold_peakslew=0;
-	long N=(long)(duration()/10)+1;
-	m_total_moment=Vector3(0,0,0);
-	if ((plateau_time<=10)||(N==0)||(ramp_time_1<=0)||(ramp_time_2<=0)) {
-		GX->setArbGradient(1,0,0,10);
-		GY->setArbGradient(2,0,0,10);
-		GZ->setArbGradient(3,0,0,10);
-	}
-	else {
-		Vector3 initial_amplitude=(momentAt(10/plateau_time)-momentAt(0))/10;
-		Vector3 final_amplitude=(momentAt(1)-momentAt(1-10/plateau_time))/10;
-		double *ampX=(double *)malloc(sizeof(double)*N);
-		double *ampY=(double *)malloc(sizeof(double)*N);
-		double *ampZ=(double *)malloc(sizeof(double)*N);
-		for (long j=0; j<N; j++) {
-			double t=(j*10-ramp_time_1)/plateau_time;
-			if (t<0) {
-				double holdt=(j*10/ramp_time_1);
-				ampX[j]=holdt*initial_amplitude.x();
-				ampY[j]=holdt*initial_amplitude.y();
-				ampZ[j]=holdt*initial_amplitude.z();
-			}
-			else if (t<1) {
-				Vector3 holdamp=(momentAt(t+10/plateau_time)-momentAt(t))/10;
-				ampX[j]=holdamp.x();
-				ampY[j]=holdamp.y();
-				ampZ[j]=holdamp.z();
-			}
-			else {
-				double holdt=1-(j*10-ramp_time_1-plateau_time)/ramp_time_2;
-				ampX[j]=holdt*final_amplitude.x();
-				ampY[j]=holdt*final_amplitude.y();
-				ampZ[j]=holdt*final_amplitude.z();
-			}
-			m_total_moment.setX(m_total_moment.x()+ampX[j]*10);
-			m_total_moment.setY(m_total_moment.y()+ampY[j]*10);
-			m_total_moment.setZ(m_total_moment.z()+ampZ[j]*10);
-			if (fabs(ampX[j])>hold_peakamp) hold_peakamp=fabs(ampX[j]);
-			if (fabs(ampY[j])>hold_peakamp) hold_peakamp=fabs(ampY[j]);
-			if (fabs(ampZ[j])>hold_peakamp) hold_peakamp=fabs(ampZ[j]);
-			if (j>0) {
-				double s1=fabs((ampX[j]-ampX[j-1])/10);
-				double s2=fabs((ampY[j]-ampY[j-1])/10);
-				double s3=fabs((ampZ[j]-ampZ[j-1])/10);
-				if (s1>hold_peakslew) hold_peakslew=s1;
-				if (s2>hold_peakslew) hold_peakslew=s2;
-				if (s3>hold_peakslew) hold_peakslew=s3;
-			}
-		}
-		GX->setArbGradient(1,N,ampX,10);
-		GY->setArbGradient(2,N,ampY,10);
-		GZ->setArbGradient(3,N,ampZ,10);
-		free(ampX);
-		free(ampY);
-		free(ampZ);
-	}
-	peakamp=hold_peakamp;
-	peakslew=hold_peakslew;
-	setModified(false);
-	return true;
-}
-bool STArbGradient::run() {
-	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
-	if (!scanner()) return false;
-	GX->setStartTime(startTime());
-	GY->setStartTime(startTime());
-	GZ->setStartTime(startTime());
-	scanner()->addEvent(GX);
-	scanner()->addEvent(GY);
-	scanner()->addEvent(GZ);
-	return true;
-}
-double STArbGradient::duration() {
-	return ramp_time_1+plateau_time+ramp_time_2;
-}
-Vector3 STArbGradient::terminalMoment() {
-	return initialMoment()+totalGradientMoment();
-}
-Vector3 STArbGradient::totalGradientMoment() {
-	return m_total_moment;
-}
-
-Vector3 STArbGradient::gradientStartTimes() {
-	return Vector3(0,0,0);
-}
-Vector3 STArbGradient::gradientEndTimes() {
-	double dur=duration();
-	return Vector3(dur,dur,dur);
-}
-
-Vector3 STArbGradient::momentAt(double t) {
-	if (!sequence()) return Vector3(0,0,0);
-	return sequence()->kspace2moment(gradientShape(t)+kspace_offset);
-}
-
-Vector3 STArbGradient::gradientShape(double t) {
-	t=t+1; //dummy operation
-	return Vector3(0,0,0);
-}
-
-Vector3 STArbGradient::ramp1Moment() {
-	Vector3 initial_amplitude=(momentAt(10/plateau_time)-momentAt(0))/10;
-	return initial_amplitude*ramp_time_1/2;
-}
-
-
-////// STCircleGradient //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STCircleGradient::STCircleGradient() {
-	ST_CLASS(STCircleGradient,STArbGradient)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal, kspace_radius_1, 20,)
-	ST_PARAMETER(STReal, kspace_radius_2, 20,)
-	ST_PARAMETER(STReal, num_cycles, 1,)
-	ST_PARAMETER(STVector3, kspace_direction_1, (10,0,0),)
-	ST_PARAMETER(STVector3, kspace_direction_2, (0,10,0),)
-	/* ST_CHILDREN */
-}
-STCircleGradient::~STCircleGradient() {
-}
-bool STCircleGradient::prepare() {
-	return STArbGradient::prepare();
-}
-
-//t ranges between 0 and 1 (across the plateau), return k-space location
-Vector3 STCircleGradient::gradientShape(double t) {
-	double t2=t*2*3.141592*num_cycles;
-	return kspace_direction_1*kspace_radius_1*cos(t2)+kspace_direction_2*kspace_radius_2*sin(t2)+kspace_offset;
-}
-
-
-////// STCartesianLoop //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STCartesianLoop::STCartesianLoop() {
-	ST_CLASS(STCartesianLoop,STLoop)
-	/* ST_PARAMETERS */	
-	ST_PARAMETER(STIterator,PE1,-64:1:63,)
-	ST_PARAMETER(STIterator,PE2,0:1:0,)
-	ST_PARAMETER(STVector3,readout_dir,(1,0,0),)
-	ST_PARAMETER(STVector3,PE1_dir,(0,1,0),)
-	ST_PARAMETER(STVector3,PE2_dir,(0,0,1),)
-	/* ST_CHILDREN */
-	ST_CHILD(STGradientEchoBlock,Block)
-}
-bool STCartesianLoop::prepare() {
-	Block->kspace_dir=readout_dir;
-	return STLoop::prepare();
-}
-
-
-bool STCartesianLoop::loopRun() {
-	Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2;
-	return Block->run();
-}
-
-
-////// STEncode //////
-/* BEGIN EXCLUDE */
-/* END EXCLUDE */
-
-STEncode::STEncode() {
-	ST_CLASS(STEncode,STNode)
-	/* ST_PARAMETERS */
-	ST_PARAMETER(STVector3, moment,(0,0,0),[uT/mm]-us)
-	ST_PARAMETER(STInteger, do_rewind, 1, 0 or 1)
-	/* ST_CHILDREN */
-	ST_CHILD(STGradientMom, Gradient)
-}
-bool STEncode::prepare() {
+bool STRefocus::prepare() {
 	if (!sequence()) return false;
 	if (!scanner()) return false;
+	//Prepare RF
+	if ((slice_thickness.isModified())||(bandwidth.isModified())||(gradient_amplitude.isModified())) {
+		SliceGradient->amplitude=gradient_amplitude;
+		if ((slice_thickness>0)&&(gradient_amplitude.abs()>0)) {
+			double gradamp=gradient_amplitude.abs();
+			bandwidth=gradamp*slice_thickness*sequence()->gamma;
+		}
+		RF->bandwidth=bandwidth;
+	}
+	if (flip_angle.isModified())
+		RF->flip_angle=flip_angle;
+	if (RF->isModified()) 
+		if (!RF->prepare()) return false;
+	double RF_duration=RF->duration();
+	RF_duration=scanner()->rounduptime(RF_duration);
+	
+	//Prepare Slice Gradient
+	SliceGradient->plateau_time=RF_duration;
+	if (SliceGradient->isModified()) 
+		if (!SliceGradient->prepare()) return false;
 
-	//Prepare Gradient
-	if (do_rewind)
-		Gradient->setMoment(initialMoment()*(-1)+moment);
+	//Prepare Crushers
+	if (crusher_moment.isModified()) {
+		Crusher1->setMoment(crusher_moment);
+		Crusher2->setMoment(crusher_moment);
+		if (!Crusher1->prepare()) return false;
+		if (!Crusher2->prepare()) return false;
+	}
+	
+	//set gradient information
+	RF->setGradientAmplitude(SliceGradient->amplitude);
+	RF->slice_thickness=slice_thickness;
+	RF->setInitialTotalMoment(initialTotalMoment()+Crusher1->totalGradientMoment()+SliceGradient->amplitude*SliceGradient->ramp_time_1/2);
+	
+	//Set start times
+	Crusher1->setRelativeStartTime(0);
+	SliceGradient->setRelativeStartTime(Crusher1->duration());
+	RF->setRelativeStartTime(SliceGradient->relativeStartTime()+SliceGradient->ramp_time_1);
+	if (SliceGradient->duration()>0)
+		Crusher2->setRelativeStartTime(SliceGradient->relativeStartTime()+SliceGradient->duration());
 	else
-		Gradient->setMoment(moment);
-	if (Gradient->isModified())
-		if (!Gradient->prepare()) return false;
+		Crusher2->setRelativeStartTime(RF->relativeStartTime()+RF->duration());
 	
 	setModified(false);
 	return true;
 }
+Vector3 STRefocus::terminalMoment() {
+	Vector3 ret=initialMoment()+crusher_moment;
+	double effective_time_1=SliceGradient->ramp_time_1/2+RF->referenceTime();
+	double effective_time_2=SliceGradient->ramp_time_2/2+SliceGradient->plateau_time-RF->referenceTime();
+	ret=ret+SliceGradient->amplitude*effective_time_1;
+	ret=ret*(-1); //refocus
+	ret=ret+SliceGradient->amplitude*effective_time_2;
+	ret=ret+crusher_moment;
+	return ret;
+}
 
-double STEncode::duration() {
-	return Gradient->duration();
+double STRefocus::duration() {
+	return Crusher2->relativeStartTime()+Crusher2->duration();
 }
 
 
@@ -1140,92 +426,455 @@ Vector3 STGradientMom::gradientEndTimes() {
 }
 
 
-////// STSampledRF //////
+////// STEncode //////
 /* BEGIN EXCLUDE */
-/* END EXCLUDE */ 
+/* END EXCLUDE */
 
-STSampledRF::STSampledRF() {
-	ST_CLASS(STSampledRF,STRF)
+STEncode::STEncode() {
+	ST_CLASS(STEncode,STNode)
 	/* ST_PARAMETERS */
-	ST_PARAMETER(STString,pulse_shape,pulse.mrp,)
+	ST_PARAMETER(STVector3, moment,(0,0,0),[uT/mm]-us)
+	ST_PARAMETER(STInteger, do_rewind, 1, 0 or 1)
 	/* ST_CHILDREN */
+	ST_CHILD(STGradientMom, Gradient)
+}
+bool STEncode::prepare() {
+	if (!sequence()) return false;
+	if (!scanner()) return false;
+
+	//Prepare Gradient
+	if (do_rewind)
+		Gradient->setMoment(initialMoment()*(-1)+moment);
+	else
+		Gradient->setMoment(moment);
+	if (Gradient->isModified())
+		if (!Gradient->prepare()) return false;
 	
-	double data_real[100];
-	double data_imag[100];
-	for (long j=0; j<100; j++) {
-		data_real[j]=1;
-		data_imag[j]=0;
-	}
-	setSamples(100,data_real,data_imag,500,10,1000);
+	setModified(false);
+	return true;
 }
 
-void STSampledRF::setSamples(long N, const double *data_real, const double *data_imag, double reference_center_time /*us*/, double reference_timestep /*us*/, double reference_bandwidth /*Hz*/) {
-	m_num_samples=N;
-	m_data_real.clear();
-	m_data_imag.clear();
-	for (long j=0; j<N; j++) {
-		m_data_real << data_real[j];
-		m_data_imag << data_imag[j];
-	}
-	m_reference_center_time=reference_center_time;
-	m_reference_timestep=reference_timestep;
-	m_reference_bandwidth=reference_bandwidth;
-	setShapeChanged(true);
-	setModified(true);
+double STEncode::duration() {
+	return Gradient->duration();
 }
 
-bool STSampledRF::prepare() {
-	if (pulse_shape.isModified()) {
-		if (!sequence()) return false;
-		SString shape=pulse_shape.toString();
-		STResource *R_data_real=sequence()->resource(shape+"->data_real");
-		STResource *R_data_imag=sequence()->resource(shape+"->data_imag");
-		STResource *R_timestep=sequence()->resource(shape+"->timestep");
-		STResource *R_rephase_time=sequence()->resource(shape+"->rephase_time");
-		STResource *R_bandwidth=sequence()->resource(shape+"->bandwidth");
-		if ((!R_data_real)||(!R_data_imag)||(!R_timestep)||(!R_rephase_time)||(!R_bandwidth)) {
-			printf("Cannot find resource: %s\n",shape.data());
-			return false;
-		}
-		if ((R_data_real->doubleListCount()==0)||(R_data_real->doubleListCount()!=R_data_imag->doubleListCount())) {
-			printf("Problem with pulse shape: %s\n",shape.data());
-			return false;
-		}
-		double *data_real=(double *)malloc(sizeof(double)*R_data_real->doubleListCount());
-		double *data_imag=(double *)malloc(sizeof(double)*R_data_real->doubleListCount());
 
-		for (long j=0; j<R_data_real->doubleListCount(); j++) {
-			data_real[j]=R_data_real->getDoubleList(j);
-			data_imag[j]=R_data_imag->getDoubleList(j);
-		}
-		long N=R_data_real->doubleListCount();
-		double timestep=R_timestep->getDouble();
-		double bw=R_bandwidth->getDouble();
-		double rt=R_rephase_time->getDouble();
-		double reference_center_time=N*timestep-rt;
-		setSamples(N,data_real,data_imag,reference_center_time,timestep,bw);
+////// STCircleGradient //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
 
-		free(data_real);
-		free(data_imag);
-	}
-	if (bandwidth.isModified()) {
-		setShapeChanged(true);
-	}
-	pulse_duration=m_num_samples*m_reference_timestep*m_reference_bandwidth/bandwidth;
-	reference_fraction=m_reference_center_time/(m_num_samples*m_reference_timestep);
-	return STRF::prepare();
+STCircleGradient::STCircleGradient() {
+	ST_CLASS(STCircleGradient,STArbGradient)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal, kspace_radius_1, 20,)
+	ST_PARAMETER(STReal, kspace_radius_2, 20,)
+	ST_PARAMETER(STReal, num_cycles, 1,)
+	ST_PARAMETER(STVector3, kspace_direction_1, (10,0,0),)
+	ST_PARAMETER(STVector3, kspace_direction_2, (0,10,0),)
+	/* ST_CHILDREN */
+}
+STCircleGradient::~STCircleGradient() {
+}
+bool STCircleGradient::prepare() {
+	return STArbGradient::prepare();
 }
 
-void STSampledRF::pulseShape(double cycles,double &re,double &im) {
-	double t2=cycles/m_reference_bandwidth*1.0E6+m_reference_center_time;
-	long index=(long)(t2/m_reference_timestep);
-	if ((index<0)||(index>=m_num_samples)) {
-		re=im=0; 
+//t ranges between 0 and 1 (across the plateau), return k-space location
+Vector3 STCircleGradient::gradientShape(double t) {
+	double t2=t*2*3.141592*num_cycles;
+	return kspace_direction_1*kspace_radius_1*cos(t2)+kspace_direction_2*kspace_radius_2*sin(t2)+kspace_offset;
+}
+
+
+////// STRF //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STRF::STRF() {
+	ST_CLASS(STRF,STNode)
+	RF=0;
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal, flip_angle, 90, degrees)
+	ST_PARAMETER(STReal, pulse_duration, 1000, microsec)
+	ST_PARAMETER(STReal, reference_fraction, 0.5,)
+	ST_PARAMETER(STReal, bandwidth, 1000, Hz)
+	ST_PARAMETER(STReal, time_step, 10, microsec)
+	ST_PARAMETER(STReal, phase, 0, degrees)
+	ST_PARAMETER(STReal, frequency, 0, Hz)
+	ST_PARAMETER(STInteger, pulse_type, 1, 1=Excite; 2=Refocus)
+	ST_PARAMETER(STVector3, gradient_amplitude, (0,0,0), uT/mm; for internal use)
+	ST_PARAMETER(STReal, slice_thickness, 0, mm; for internal use)
+	/* ST_CHILDREN */
+}
+STRF::~STRF() {
+	delete_events();
+}
+void STRF::delete_events() {
+	if (RF) delete RF; RF=0;
+}
+void STRF::pulseShape(double cycles,double &re,double &im) {
+	re=1;
+	im=0;
+}
+bool STRF::initialize() {
+	clearChildren();
+	if (!scanner()) return false;
+	delete_events();
+	RF=scanner()->allocateRFPulse(this);
+	m_shape_changed=true;
+	return true;
+}
+bool STRF::prepare() {
+	if (!RF) return false;
+	if (time_step<=0) return false;
+	if (pulse_duration<0) return false;
+	if (!sequence()) return false;
+	if ((shapeChanged())||(pulse_duration.isModified())||(time_step.isModified())||(reference_fraction.isModified())||(bandwidth.isModified())) {
+		m_shape_changed=false;
+		long N=(long)(pulse_duration/time_step);
+		if (N==0) {
+			RF->setPulse(0,0,0,time_step,flip_angle,scanner()->rounduptime(reference_fraction*pulse_duration));
+		}
+		else {
+			double *data_mag=(double *)malloc(sizeof(double)*N);
+			double *data_phase=(double *)malloc(sizeof(double)*N);
+			double reftime=scanner()->rounduptime(reference_fraction*pulse_duration);
+			double sum_re=0;
+			double sum_im=0;
+			{for (long j=0; j<N; j++) {
+				double re,im;
+				pulseShape((j*time_step-reftime)*bandwidth/1.0E6,re,im);
+				sum_re+=re;
+				sum_im+=im;
+				data_mag[j]=sqrt(re*re+im*im);
+				data_phase[j]=atan2(im,re)/(2*3.1415926535)*360;
+				if (data_phase[j]<0) data_phase[j]+=360;
+			}}
+			//uT * sec * Hz/uT * degrees = degrees  
+			double factor=sqrt(sum_re*sum_re+sum_im*sum_im)*time_step/1.0E6*sequence()->gamma*360/90;
+			{for (long j=0; j<N; j++) {
+				data_mag[j]/=factor;
+			}}
+			RF->setPulse(N,data_mag,data_phase,time_step,90,reftime);
+			free(data_mag);
+			free(data_phase);
+		}
+		RF->setFlipAngle(flip_angle);
 	}
-	else {
-		re=m_data_real[index];
-		im=m_data_imag[index];
+	else if (flip_angle.isModified()) {
+		RF->setFlipAngle(flip_angle);
 	}
+	RF->setReferenceInfo(gradient_amplitude.abs(),fabs(slice_thickness),pulse_type);
+	
+	setModified(false);
+	return true;
+}
+bool STRF::run() {
+	if (!RF) return false;
+	if (!scanner()) return false;
+	if (!sequence()) return false;
+	RF->setStartTime(startTime());
+	double ph=phase;
+	Vector3 totmom=initialTotalMoment();
+	ph+=sequence()->phaseAdjustment();
+	ph+=(totmom.x()*sequence()->getFOVShiftX()
+		+totmom.y()*sequence()->getFOVShiftY()
+		+totmom.z()*sequence()->getFOVShiftZ())*sequence()->gamma/1.0E6*360;
+	RF->setPhase(ph);
+	double fr=frequency;
+	fr+=(gradient_amplitude.x()*sequence()->getFOVShiftX()
+		+gradient_amplitude.y()*sequence()->getFOVShiftY()
+		+gradient_amplitude.z()*sequence()->getFOVShiftZ())*sequence()->gamma;
+	RF->setFrequency(fr);
+	if (RF->pulseCount()>0) {
+		scanner()->addEvent(RF);
+	}
+	return true;
+}
+double STRF::duration() {
+	if (!RF) return 0;
+	return RF->pulseCount()*RF->timeStep();
+}
+double STRF::referenceTime() {
+	if (!RF) return 0;
+	return RF->referenceTime();
+}
+Vector3 STRF::terminalMoment() {
+	if (pulse_type==1) return Vector3(0,0,0);
+	if (pulse_type==2) return initialMoment()*(-1);
+	return initialMoment();
+}
+
+Vector3 STRF::gradientStartTimes() {
+	return Vector3(0,0,0);
+}
+Vector3 STRF::gradientEndTimes() {
+	double dur=duration();
+	return Vector3(dur,dur,dur);
+}
+
+void STRF::setGradientAmplitude(Vector3 amp) {
+	gradient_amplitude=amp;
+}
+
+
+double STRF::SAR() {
+	if (!RF) return 0;
+	return RF->SAR();
+}
+
+
+////// STCartesianLoop //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STCartesianLoop::STCartesianLoop() {
+	ST_CLASS(STCartesianLoop,STLoop)
+	/* ST_PARAMETERS */	
+	ST_PARAMETER(STIterator,PE1,-64:1:63,)
+	ST_PARAMETER(STIterator,PE2,0:1:0,)
+	ST_PARAMETER(STVector3,readout_dir,(1,0,0),)
+	ST_PARAMETER(STVector3,PE1_dir,(0,1,0),)
+	ST_PARAMETER(STVector3,PE2_dir,(0,0,1),)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientEchoBlock,Block)
+}
+bool STCartesianLoop::prepare() {
+	Block->kspace_dir=readout_dir;
+	return STLoop::prepare();
+}
+
+
+bool STCartesianLoop::loopRun() {
+	Block->kspace_echo=PE1_dir*PE1+PE2_dir*PE2;
+	return Block->run();
+}
+
+
+////// STMultiAcquire //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STMultiAcquire::STMultiAcquire() {
+	ST_CLASS(STMultiAcquire,STNode)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STInteger, num_echoes, 1, )
+	ST_PARAMETER(STReal, echo_spacing, 5000, )
+	ST_PARAMETER(STInteger, reference_echo, 0, )
+	ST_PARAMETER(STInteger, alternating, 0, 0 or 1)
+	ST_PARAMETER(STInteger, num_readout_points, 256,)
+	ST_PARAMETER(STReal, dwell_time, 20, microsec)
+	ST_PARAMETER(STReal, ramp_time, 100, microsec)
+	ST_PARAMETER(STVector3, echo_moment, (0,0,0), [uT/mm]-us)
+	ST_PARAMETER(STVector3, moment_per_point, (0,0,0), [uT/mm]-us)
+	ST_PARAMETER(STVector3, step_moment, (0,0,0), [uT/mm]-us)
+	ST_PARAMETER(STReal, maxamp, 0, [uT/mm]-us)
+	ST_PARAMETER(STReal, ramprate, 0, [uT/mm]/us)
+	/* ST_CHILDREN */
+}
+
+bool STMultiAcquire::prepare() {
+	if (!sequence()) return false;
+	if (!scanner()) return false;
+	
+	if (num_echoes.isModified()) {
+		clearChildren();
+		m_echoes.clear();
+		for (int j=0; j<num_echoes; j++) {
+			SString namestr=SString("Echo")+SString::number(j);
+			STAcquire *new_echo=new STAcquire;
+			new_echo->setName(namestr);
+			m_echoes << new_echo;
+			addChild(new_echo);
+			new_echo->initialize();
+		}
+	}
+	if (echo_moment.isModified()||step_moment.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->echo_moment=echo_moment+step_moment*j;
+		}
+	}
+	if (reference_echo.isModified()) {
+		setReferenceChildIndex(reference_echo);
+	}
+	if (moment_per_point.isModified()||alternating.isModified()||reference_echo.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			double sgn=1;
+			if ((alternating)&&((j-reference_echo)%2!=0)) sgn=-1;
+			m_echoes[j]->moment_per_point=moment_per_point*sgn;
+			m_echoes[j]->Readout->round_up_reference_time=(int)((sgn+1)/2);
+		}
+	}
+	if (num_readout_points.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->Readout->N=num_readout_points;
+		}
+	}
+	if (dwell_time.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->Readout->dwell_time=dwell_time;
+		}
+	}
+	if (ramp_time.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->ReadoutGradient->ramp_time_1=ramp_time;
+			m_echoes[j]->ReadoutGradient->ramp_time_2=ramp_time;
+		}
+	}
+	if (maxamp.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->Encode->maxamp=maxamp;
+		}
+	}
+	if (ramprate.isModified()) {
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->Encode->ramprate=ramprate;
+		}
+	}
+	
+	Vector3 mom=initialMoment();
+	Vector3 totmom=initialTotalMoment();
+	{for (int j=0; j<m_echoes.count(); j++) {
+		m_echoes[j]->setInitialMoment(mom);
+		m_echoes[j]->setInitialTotalMoment(totmom);
+		if (!m_echoes[j]->prepare()) return false;
+		mom=mom+m_echoes[j]->totalGradientMoment();
+		totmom=totmom+m_echoes[j]->totalGradientMoment();
+	}}
+	
+	if (m_echoes.count()>0) {
+		double ref_time=m_echoes[0]->relativeStartTime()+m_echoes[0]->referenceTime();
+		for (int j=0; j<m_echoes.count(); j++) {
+			m_echoes[j]->setRelativeStartTime(ref_time+echo_spacing*j-m_echoes[j]->referenceTime());
+		}
+	}
+	
+	//check for overlaps
+	{for (int j=0; j<m_echoes.count(); j++) {
+		if (j==0) {
+			if (m_echoes[j]->relativeStartTime()<0) {
+				SString str=SString("Error in ")+name()+", start time for "+m_echoes[j]->name()+" is negative";
+				reportError(str);
+				return false;
+			}
+		}
+		else {
+			if (overlaps(m_echoes[j-1],m_echoes[j])) {
+				SString str=SString("Error in ")+name()+", "+m_echoes[j-1]->name()+" overlaps "+m_echoes[j]->name();
+				reportError(str);
+				return false;
+			}
+		}
+	}}
+	
+	
+	
+	return true;
+}
+
+double STMultiAcquire::duration() {
+	if (m_echoes.count()==0) return 0;
+	int index=m_echoes.count()-1;
+	return m_echoes[index]->relativeStartTime()+m_echoes[index]->duration();
+}
+
+
+void STMultiAcquire::setMDHOnline() {
+	for (int j=0; j<m_echoes.count(); j++) {
+		m_echoes[j]->Readout->scannerCommand("setMDHOnline");
+	}
+}
+
+
+////// STArbAcquire //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STArbAcquire::STArbAcquire() {
+	ST_CLASS(STArbAcquire,STNode)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STVector3,kspace_offset,(0,0,0),)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientMom, Encode)
+	ST_CHILD(STArbGradient, ReadoutGradient)
+	ST_CHILD(STReadout, Readout)
+	setReferenceChildIndex(2);
+}
+bool STArbAcquire::prepare() {
+	if (!sequence()) return false;
+	if (!scanner()) return false;
+	//Prepare Readout
+	if (Readout->isModified()) 
+		if (!Readout->prepare()) return false;
+	double readout_duration=Readout->duration();
+	readout_duration=scanner()->rounduptime(readout_duration);
+	
+	//Prepare Readout Gradient
+	ReadoutGradient->plateau_time=readout_duration;
+	ReadoutGradient->kspace_offset=kspace_offset;
+	if (ReadoutGradient->isModified()) 
+		if (!ReadoutGradient->prepare()) return false;
+
+	//Prepare Encode
+	Encode->setMoment(initialMoment()*(-1)-ReadoutGradient->ramp1Moment()+ReadoutGradient->momentAt(0));
+	if (Encode->isModified())
+		if (!Encode->prepare()) return false;
+	
+	//Set start times
+	Encode->setRelativeStartTime(0);
+	ReadoutGradient->setRelativeStartTime(Encode->duration());
+	Readout->setRelativeStartTime(ReadoutGradient->relativeStartTime()+ReadoutGradient->ramp_time_1);
+	
+	setModified(false);
+	
+	return true;
+}
+
+double STArbAcquire::duration() {
+	return ReadoutGradient->relativeStartTime()+ReadoutGradient->duration();
+}
+
+
+////// STGradientEchoBlock //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STGradientEchoBlock::STGradientEchoBlock() {
+	ST_CLASS(STGradientEchoBlock,STChain)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal,TE,6000,microsec)
+	ST_PARAMETER(STReal,TR,50000,microsec)
+	ST_PARAMETER(STVector3, kspace_dir, (1,0,0),)
+	ST_PARAMETER(STVector3, kspace_echo, (0,0,0),)
+	ST_PARAMETER(STReal, excite_time, 1000, microsec)
+	/* ST_CHILDREN */
+	ST_CHILD(STExcite, Excite)
+	ST_CHILD(STAcquire, Acquire)
+	ST_CHILD(STEncode, Rewind)
+	
+	ST_DEFAULT(Excite->RF,STSincRF)
+	ST_DEFAULT(Excite->RF->num_lobes_left,4)
+	ST_DEFAULT(Excite->RF->num_lobes_right,1)
+	ST_DEFAULT(Excite->RF->flip_angle,45)
+	ST_DEFAULT(Excite->gradient_amplitude,(0,0,10))
+	ST_DEFAULT(Excite->slice_thickness,10)
+	ST_DEFAULT(Rewind->moment,(0,0,100000))
+}
+bool STGradientEchoBlock::initialize() {
+	STChain::initialize();
+	return true;
+}
+bool STGradientEchoBlock::prepare() {
+	/* ST_ALIGNMENTS */
+	ST_ALIGN(Excite, ST_ALIGN_LEFT, excite_time, 0)
+	ST_ALIGN(Acquire, ST_ALIGN_RELATIVE, TE, 0)
+	ST_ALIGN(Rewind, ST_ALIGN_LEFT, 0, 0)
+	
+	if (!sequence()) return false;
+	if (TR.isModified()) setDuration(TR);
+	Acquire->moment_per_point=sequence()->kspace2moment(kspace_dir);
+	Acquire->echo_moment=sequence()->kspace2moment(kspace_echo);
+	return STChain::prepare();
 }
 
 
@@ -1283,6 +932,67 @@ bool STAcquire::prepare() {
 
 double STAcquire::duration() {
 	return ReadoutGradient->relativeStartTime()+ReadoutGradient->duration();
+}
+
+
+////// STRadialLoop //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STRadialLoop::STRadialLoop() {
+	ST_CLASS(STRadialLoop,STLoop)
+	/* ST_PARAMETERS */	
+	ST_PARAMETER(STIterator,angle,0:1:0 check: 0;90;180;270,degrees)
+	ST_PARAMETER(STIterator,PE,0:1:0,)
+	ST_PARAMETER(STVector3,readout_dir1,(1,0,0),)
+	ST_PARAMETER(STVector3,readout_dir2,(0,1,0),)
+	ST_PARAMETER(STVector3,PE_dir,(0,0,1),)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientEchoBlock,Block)
+}
+bool STRadialLoop::prepare() {
+	return STLoop::prepare();
+}
+
+
+bool STRadialLoop::loopRun() {
+	Block->kspace_dir=readout_dir1*cos(angle*3.141592/180)+readout_dir2*sin(angle*3.141592/180);
+	Block->kspace_echo=PE_dir*PE;
+	return Block->run();
+}
+
+
+////// STSincRF //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */ 
+
+STSincRF::STSincRF() {
+	ST_CLASS(STSincRF,STRF)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal,num_lobes_left,1,);
+	ST_PARAMETER(STReal,num_lobes_right,1,);
+	/* ST_CHILDREN */
+}
+
+bool STSincRF::prepare() {
+	if ((num_lobes_left.isModified())||(num_lobes_right.isModified())||(bandwidth.isModified())) {
+		double left_duration=(num_lobes_left+1)*1.0E6/bandwidth;
+		double right_duration=(num_lobes_right+1)*1.0E6/bandwidth;
+		if (left_duration+right_duration<=0) return false;
+		pulse_duration=left_duration+right_duration;
+		reference_fraction=left_duration/pulse_duration;
+		setShapeChanged(true);
+	}
+	return STRF::prepare();
+}
+
+void STSincRF::pulseShape(double cycles,double &re,double &im) {
+	double t=cycles*3.141592;
+	if (fabs(t)<0.01)
+		re=1-t*t/6;
+	else
+		re=sin(t)/t;
+	im=0;
 }
 
 
@@ -1453,141 +1163,431 @@ void STReadout::scannerCommand(SString command_name,long param1,long param2,long
 }
 
 
-////// STRF //////
+////// STSampledRF //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */ 
+
+STSampledRF::STSampledRF() {
+	ST_CLASS(STSampledRF,STRF)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STString,pulse_shape,pulse.mrp,)
+	/* ST_CHILDREN */
+	
+	double data_real[100];
+	double data_imag[100];
+	for (long j=0; j<100; j++) {
+		data_real[j]=1;
+		data_imag[j]=0;
+	}
+	setSamples(100,data_real,data_imag,500,10,1000);
+}
+
+void STSampledRF::setSamples(long N, const double *data_real, const double *data_imag, double reference_center_time /*us*/, double reference_timestep /*us*/, double reference_bandwidth /*Hz*/) {
+	m_num_samples=N;
+	m_data_real.clear();
+	m_data_imag.clear();
+	for (long j=0; j<N; j++) {
+		m_data_real << data_real[j];
+		m_data_imag << data_imag[j];
+	}
+	m_reference_center_time=reference_center_time;
+	m_reference_timestep=reference_timestep;
+	m_reference_bandwidth=reference_bandwidth;
+	setShapeChanged(true);
+	setModified(true);
+}
+
+bool STSampledRF::prepare() {
+	if (pulse_shape.isModified()) {
+		if (!sequence()) return false;
+		SString shape=pulse_shape.toString();
+		STResource *R_data_real=sequence()->resource(shape+"->data_real");
+		STResource *R_data_imag=sequence()->resource(shape+"->data_imag");
+		STResource *R_timestep=sequence()->resource(shape+"->timestep");
+		STResource *R_rephase_time=sequence()->resource(shape+"->rephase_time");
+		STResource *R_bandwidth=sequence()->resource(shape+"->bandwidth");
+		if ((!R_data_real)||(!R_data_imag)||(!R_timestep)||(!R_rephase_time)||(!R_bandwidth)) {
+			printf("Cannot find resource: %s\n",shape.data());
+			return false;
+		}
+		if ((R_data_real->doubleListCount()==0)||(R_data_real->doubleListCount()!=R_data_imag->doubleListCount())) {
+			printf("Problem with pulse shape: %s\n",shape.data());
+			return false;
+		}
+		double *data_real=(double *)malloc(sizeof(double)*R_data_real->doubleListCount());
+		double *data_imag=(double *)malloc(sizeof(double)*R_data_real->doubleListCount());
+
+		for (long j=0; j<R_data_real->doubleListCount(); j++) {
+			data_real[j]=R_data_real->getDoubleList(j);
+			data_imag[j]=R_data_imag->getDoubleList(j);
+		}
+		long N=R_data_real->doubleListCount();
+		double timestep=R_timestep->getDouble();
+		double bw=R_bandwidth->getDouble();
+		double rt=R_rephase_time->getDouble();
+		double reference_center_time=N*timestep-rt;
+		setSamples(N,data_real,data_imag,reference_center_time,timestep,bw);
+
+		free(data_real);
+		free(data_imag);
+	}
+	if (bandwidth.isModified()) {
+		setShapeChanged(true);
+	}
+	pulse_duration=m_num_samples*m_reference_timestep*m_reference_bandwidth/bandwidth;
+	reference_fraction=m_reference_center_time/(m_num_samples*m_reference_timestep);
+	return STRF::prepare();
+}
+
+void STSampledRF::pulseShape(double cycles,double &re,double &im) {
+	double t2=cycles/m_reference_bandwidth*1.0E6+m_reference_center_time;
+	long index=(long)(t2/m_reference_timestep);
+	if ((index<0)||(index>=m_num_samples)) {
+		re=im=0; 
+	}
+	else {
+		re=m_data_real[index];
+		im=m_data_imag[index];
+	}
+}
+
+
+////// STGradientAmp //////
 /* BEGIN EXCLUDE */
 /* END EXCLUDE */
 
-STRF::STRF() {
-	ST_CLASS(STRF,STNode)
-	RF=0;
+STGradientAmp::STGradientAmp() {
+	ST_CLASS(STGradientAmp,STNode)
+	GX=0;
+	GY=0;
+	GZ=0;
 	/* ST_PARAMETERS */
-	ST_PARAMETER(STReal, flip_angle, 90, degrees)
-	ST_PARAMETER(STReal, pulse_duration, 1000, microsec)
-	ST_PARAMETER(STReal, reference_fraction, 0.5,)
-	ST_PARAMETER(STReal, bandwidth, 1000, Hz)
-	ST_PARAMETER(STReal, time_step, 10, microsec)
-	ST_PARAMETER(STReal, phase, 0, degrees)
-	ST_PARAMETER(STReal, frequency, 0, Hz)
-	ST_PARAMETER(STInteger, pulse_type, 1, 1=Excite; 2=Refocus)
-	ST_PARAMETER(STVector3, gradient_amplitude, (0,0,0), uT/mm; for internal use)
-	ST_PARAMETER(STReal, slice_thickness, 0, mm; for internal use)
+	ST_PARAMETER(STReal, ramp_time_1, 200,microsec)
+	ST_PARAMETER(STReal, plateau_time, 0,microsec)
+	ST_PARAMETER(STReal, ramp_time_2, 200,microsec)
+	ST_PARAMETER(STVector3, amplitude, (0,0,0),uT/mm)
 	/* ST_CHILDREN */
 }
-STRF::~STRF() {
+STGradientAmp::~STGradientAmp() {
 	delete_events();
 }
-void STRF::delete_events() {
-	if (RF) delete RF; RF=0;
+void STGradientAmp::delete_events() {
+	if (GX) delete GX; GX=0;
+	if (GY) delete GY; GY=0;
+	if (GZ) delete GZ; GZ=0;
 }
-void STRF::pulseShape(double cycles,double &re,double &im) {
-	re=1;
-	im=0;
-}
-bool STRF::initialize() {
+bool STGradientAmp::initialize() {
 	clearChildren();
 	if (!scanner()) return false;
 	delete_events();
-	RF=scanner()->allocateRFPulse(this);
-	m_shape_changed=true;
+	GX=scanner()->allocateGradient(this);
+	GY=scanner()->allocateGradient(this);
+	GZ=scanner()->allocateGradient(this);
 	return true;
 }
-bool STRF::prepare() {
-	if (!RF) return false;
-	if (time_step<=0) return false;
-	if (pulse_duration<0) return false;
-	if (!sequence()) return false;
-	if ((shapeChanged())||(pulse_duration.isModified())||(time_step.isModified())||(reference_fraction.isModified())||(bandwidth.isModified())) {
-		m_shape_changed=false;
-		long N=(long)(pulse_duration/time_step);
-		if (N==0) {
-			RF->setPulse(0,0,0,time_step,flip_angle,scanner()->rounduptime(reference_fraction*pulse_duration));
-		}
-		else {
-			double *data_mag=(double *)malloc(sizeof(double)*N);
-			double *data_phase=(double *)malloc(sizeof(double)*N);
-			double reftime=scanner()->rounduptime(reference_fraction*pulse_duration);
-			double sum_re=0;
-			double sum_im=0;
-			{for (long j=0; j<N; j++) {
-				double re,im;
-				pulseShape((j*time_step-reftime)*bandwidth/1.0E6,re,im);
-				sum_re+=re;
-				sum_im+=im;
-				data_mag[j]=sqrt(re*re+im*im);
-				data_phase[j]=atan2(im,re)/(2*3.1415926535)*360;
-				if (data_phase[j]<0) data_phase[j]+=360;
-			}}
-			//uT * sec * Hz/uT * degrees = degrees  
-			double factor=sqrt(sum_re*sum_re+sum_im*sum_im)*time_step/1.0E6*sequence()->gamma*360/90;
-			{for (long j=0; j<N; j++) {
-				data_mag[j]/=factor;
-			}}
-			RF->setPulse(N,data_mag,data_phase,time_step,90,reftime);
-			free(data_mag);
-			free(data_phase);
-		}
-		RF->setFlipAngle(flip_angle);
-	}
-	else if (flip_angle.isModified()) {
-		RF->setFlipAngle(flip_angle);
-	}
-	RF->setReferenceInfo(gradient_amplitude.abs(),fabs(slice_thickness),pulse_type);
-	
+bool STGradientAmp::prepare() {
+	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
+	GX->setGradient(1,amplitude.x(),ramp_time_1,plateau_time,ramp_time_2);
+	GY->setGradient(2,amplitude.y(),ramp_time_1,plateau_time,ramp_time_2);
+	GZ->setGradient(3,amplitude.z(),ramp_time_1,plateau_time,ramp_time_2);
 	setModified(false);
 	return true;
 }
-bool STRF::run() {
-	if (!RF) return false;
+bool STGradientAmp::run() {
+	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
 	if (!scanner()) return false;
-	if (!sequence()) return false;
-	RF->setStartTime(startTime());
-	double ph=phase;
-	Vector3 totmom=initialTotalMoment();
-	ph+=sequence()->phaseAdjustment();
-	ph+=(totmom.x()*sequence()->getFOVShiftX()
-		+totmom.y()*sequence()->getFOVShiftY()
-		+totmom.z()*sequence()->getFOVShiftZ())*sequence()->gamma/1.0E6*360;
-	RF->setPhase(ph);
-	double fr=frequency;
-	fr+=(gradient_amplitude.x()*sequence()->getFOVShiftX()
-		+gradient_amplitude.y()*sequence()->getFOVShiftY()
-		+gradient_amplitude.z()*sequence()->getFOVShiftZ())*sequence()->gamma;
-	RF->setFrequency(fr);
-	if (RF->pulseCount()>0) {
-		scanner()->addEvent(RF);
-	}
+	GX->setStartTime(startTime());
+	GY->setStartTime(startTime());
+	GZ->setStartTime(startTime());
+	if (GX->amplitude()!=0) scanner()->addEvent(GX);
+	if (GY->amplitude()!=0) scanner()->addEvent(GY);
+	if (GZ->amplitude()!=0) scanner()->addEvent(GZ);
 	return true;
 }
-double STRF::duration() {
-	if (!RF) return 0;
-	return RF->pulseCount()*RF->timeStep();
+double STGradientAmp::duration() {
+	return ramp_time_1+plateau_time+ramp_time_2;
 }
-double STRF::referenceTime() {
-	if (!RF) return 0;
-	return RF->referenceTime();
+Vector3 STGradientAmp::terminalMoment() {
+	return initialMoment()+totalGradientMoment();
 }
-Vector3 STRF::terminalMoment() {
-	if (pulse_type==1) return Vector3(0,0,0);
-	if (pulse_type==2) return initialMoment()*(-1);
-	return initialMoment();
+Vector3 STGradientAmp::totalGradientMoment() {
+	return amplitude*(ramp_time_1/2+plateau_time+ramp_time_2/2);
 }
 
-Vector3 STRF::gradientStartTimes() {
+Vector3 STGradientAmp::gradientStartTimes() {
+	double dur=duration();
+	Vector3 ret(dur,dur,dur);
+	if (amplitude.x()!=0) ret.setX(0);
+	if (amplitude.y()!=0) ret.setY(0);
+	if (amplitude.z()!=0) ret.setZ(0);
+	return ret;
+}
+Vector3 STGradientAmp::gradientEndTimes() {
+	double dur=duration();
+	Vector3 ret(0,0,0);
+	if (amplitude.x()!=0) ret.setX(dur);
+	if (amplitude.y()!=0) ret.setY(dur);
+	if (amplitude.z()!=0) ret.setZ(dur);
+	return ret;
+}
+
+
+////// STSpinEchoBlock //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STSpinEchoBlock::STSpinEchoBlock() {
+	ST_CLASS(STSpinEchoBlock,STChain)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal,TE,20000,microsec)
+	ST_PARAMETER(STReal,TR,50000,microsec)
+	ST_PARAMETER(STVector3, kspace_dir, (1,0,0),)
+	ST_PARAMETER(STVector3, kspace_echo, (0,0,0),)
+	/* ST_CHILDREN */
+	ST_CHILD(STExcite, Excite)
+	ST_CHILD(STRefocus, Refocus)
+	ST_CHILD(STAcquire, Acquire)
+	ST_CHILD(STEncode, Rewind)
+}
+bool STSpinEchoBlock::initialize() {
+	STChain::initialize();
+	return true;
+}
+bool STSpinEchoBlock::prepare() {
+	/* ST_ALIGNMENTS */
+	ST_ALIGN(Excite, ST_ALIGN_LEFT, 1000, 0)
+	ST_ALIGN(Refocus, ST_ALIGN_RELATIVE, TE/2, 0)
+	ST_ALIGN(Acquire, ST_ALIGN_RELATIVE, TE, 0)
+	ST_ALIGN(Rewind, ST_ALIGN_LEFT, 0, 0)
+	
+	if (!sequence()) return false;
+	if (TR.isModified()) setDuration(TR);
+	Acquire->moment_per_point=sequence()->kspace2moment(kspace_dir);
+	Acquire->echo_moment=sequence()->kspace2moment(kspace_echo);
+	return STChain::prepare();
+}
+
+
+////// STArbGradient //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STArbGradient::STArbGradient() {
+	ST_CLASS(STArbGradient,STNode)
+	GX=0;
+	GY=0;
+	GZ=0;
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STReal, ramp_time_1, 200,microsec)
+	ST_PARAMETER(STReal, plateau_time, 5000,microsec)
+	ST_PARAMETER(STReal, ramp_time_2, 200,microsec)
+	ST_PARAMETER(STVector3, kspace_offset, (0,0,0),)
+	ST_PARAMETER(STReal, peakamp, 0, uT/mm)
+	ST_PARAMETER(STReal, peakslew, 0, [uT/mm]/us)
+	/* ST_CHILDREN */
+}
+STArbGradient::~STArbGradient() {
+	delete_events();
+}
+void STArbGradient::delete_events() {
+	if (GX) delete GX; GX=0;
+	if (GY) delete GY; GY=0;
+	if (GZ) delete GZ; GZ=0;
+}
+bool STArbGradient::initialize() {
+	clearChildren();
+	if (!scanner()) return false;
+	delete_events();
+	GX=scanner()->allocateArbGradient(this);
+	GY=scanner()->allocateArbGradient(this);
+	GZ=scanner()->allocateArbGradient(this);
+	return true;
+}
+bool STArbGradient::prepare() {
+	peakamp=0;
+	peakslew=0;
+	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
+	double hold_peakamp=0;
+	double hold_peakslew=0;
+	long N=(long)(duration()/10)+1;
+	m_total_moment=Vector3(0,0,0);
+	if ((plateau_time<=10)||(N==0)||(ramp_time_1<=0)||(ramp_time_2<=0)) {
+		GX->setArbGradient(1,0,0,10);
+		GY->setArbGradient(2,0,0,10);
+		GZ->setArbGradient(3,0,0,10);
+	}
+	else {
+		Vector3 initial_amplitude=(momentAt(10/plateau_time)-momentAt(0))/10;
+		Vector3 final_amplitude=(momentAt(1)-momentAt(1-10/plateau_time))/10;
+		double *ampX=(double *)malloc(sizeof(double)*N);
+		double *ampY=(double *)malloc(sizeof(double)*N);
+		double *ampZ=(double *)malloc(sizeof(double)*N);
+		for (long j=0; j<N; j++) {
+			double t=(j*10-ramp_time_1)/plateau_time;
+			if (t<0) {
+				double holdt=(j*10/ramp_time_1);
+				ampX[j]=holdt*initial_amplitude.x();
+				ampY[j]=holdt*initial_amplitude.y();
+				ampZ[j]=holdt*initial_amplitude.z();
+			}
+			else if (t<1) {
+				Vector3 holdamp=(momentAt(t+10/plateau_time)-momentAt(t))/10;
+				ampX[j]=holdamp.x();
+				ampY[j]=holdamp.y();
+				ampZ[j]=holdamp.z();
+			}
+			else {
+				double holdt=1-(j*10-ramp_time_1-plateau_time)/ramp_time_2;
+				ampX[j]=holdt*final_amplitude.x();
+				ampY[j]=holdt*final_amplitude.y();
+				ampZ[j]=holdt*final_amplitude.z();
+			}
+			m_total_moment.setX(m_total_moment.x()+ampX[j]*10);
+			m_total_moment.setY(m_total_moment.y()+ampY[j]*10);
+			m_total_moment.setZ(m_total_moment.z()+ampZ[j]*10);
+			if (fabs(ampX[j])>hold_peakamp) hold_peakamp=fabs(ampX[j]);
+			if (fabs(ampY[j])>hold_peakamp) hold_peakamp=fabs(ampY[j]);
+			if (fabs(ampZ[j])>hold_peakamp) hold_peakamp=fabs(ampZ[j]);
+			if (j>0) {
+				double s1=fabs((ampX[j]-ampX[j-1])/10);
+				double s2=fabs((ampY[j]-ampY[j-1])/10);
+				double s3=fabs((ampZ[j]-ampZ[j-1])/10);
+				if (s1>hold_peakslew) hold_peakslew=s1;
+				if (s2>hold_peakslew) hold_peakslew=s2;
+				if (s3>hold_peakslew) hold_peakslew=s3;
+			}
+		}
+		GX->setArbGradient(1,N,ampX,10);
+		GY->setArbGradient(2,N,ampY,10);
+		GZ->setArbGradient(3,N,ampZ,10);
+		free(ampX);
+		free(ampY);
+		free(ampZ);
+	}
+	peakamp=hold_peakamp;
+	peakslew=hold_peakslew;
+	setModified(false);
+	return true;
+}
+bool STArbGradient::run() {
+	if (!GX) return false; if (!GY) return false; if (!GZ) return false;
+	if (!scanner()) return false;
+	GX->setStartTime(startTime());
+	GY->setStartTime(startTime());
+	GZ->setStartTime(startTime());
+	scanner()->addEvent(GX);
+	scanner()->addEvent(GY);
+	scanner()->addEvent(GZ);
+	return true;
+}
+double STArbGradient::duration() {
+	return ramp_time_1+plateau_time+ramp_time_2;
+}
+Vector3 STArbGradient::terminalMoment() {
+	return initialMoment()+totalGradientMoment();
+}
+Vector3 STArbGradient::totalGradientMoment() {
+	return m_total_moment;
+}
+
+Vector3 STArbGradient::gradientStartTimes() {
 	return Vector3(0,0,0);
 }
-Vector3 STRF::gradientEndTimes() {
+Vector3 STArbGradient::gradientEndTimes() {
 	double dur=duration();
 	return Vector3(dur,dur,dur);
 }
 
-void STRF::setGradientAmplitude(Vector3 amp) {
-	gradient_amplitude=amp;
+Vector3 STArbGradient::momentAt(double t) {
+	if (!sequence()) return Vector3(0,0,0);
+	return sequence()->kspace2moment(gradientShape(t)+kspace_offset);
+}
+
+Vector3 STArbGradient::gradientShape(double t) {
+	t=t+1; //dummy operation
+	return Vector3(0,0,0);
+}
+
+Vector3 STArbGradient::ramp1Moment() {
+	Vector3 initial_amplitude=(momentAt(10/plateau_time)-momentAt(0))/10;
+	return initial_amplitude*ramp_time_1/2;
 }
 
 
-double STRF::SAR() {
-	if (!RF) return 0;
-	return RF->SAR();
+////// STExcite //////
+/* BEGIN EXCLUDE */
+/* END EXCLUDE */
+
+STExcite::STExcite() {
+	ST_CLASS(STExcite,STNode)
+	/* ST_PARAMETERS */
+	ST_PARAMETER(STVector3, gradient_amplitude, (0,0,0),uT/mm)
+	ST_PARAMETER(STReal, slice_thickness, 0,mm)
+	ST_PARAMETER(STReal, bandwidth, 1000,Hz)
+	ST_PARAMETER(STInteger, prephase, 1, 0 or 1)
+	/* ST_CHILDREN */
+	ST_CHILD(STGradientMom, Prephase)
+	ST_CHILD(STGradientAmp, SliceGradient)
+	ST_CHILD(STRF, RF)
+	
+	setReferenceChildIndex(2);
+}
+bool STExcite::prepare() {
+	if (!sequence()) return false;
+	if (!scanner()) return false;
+	//Prepare RF
+	if ((slice_thickness.isModified())||(bandwidth.isModified())||(gradient_amplitude.isModified())) {
+		SliceGradient->amplitude=gradient_amplitude;
+		if ((slice_thickness>0)&&(gradient_amplitude.abs()>0)) {
+			double gradamp=gradient_amplitude.abs();
+			bandwidth=gradamp*slice_thickness*sequence()->gamma;
+		}
+		RF->bandwidth=bandwidth;
+	}
+	if (RF->isModified()) 
+		if (!RF->prepare()) return false;
+	double RF_duration=RF->duration();
+	RF_duration=scanner()->rounduptime(RF_duration);
+	
+	//Prepare Slice Gradient
+	SliceGradient->plateau_time=RF_duration;
+	if (SliceGradient->isModified()) 
+		if (!SliceGradient->prepare()) return false;
+
+	//Prepare Prephase
+	if (prephase) {
+		double effective_time_before_excite=SliceGradient->ramp_time_1*0.5+RF->referenceTime();
+		Prephase->setMoment(initialMoment()*(-1)+SliceGradient->amplitude*(effective_time_before_excite)*(-1));
+	}
+	else {
+		Prephase->setMoment(Vector3(0,0,0));
+	}
+	if (Prephase->isModified())
+		if (!Prephase->prepare()) return false;
+		
+	//set gradient information
+	RF->setGradientAmplitude(SliceGradient->amplitude);
+	RF->slice_thickness=slice_thickness;
+	RF->setInitialTotalMoment(initialTotalMoment()+Prephase->totalGradientMoment()+SliceGradient->amplitude*SliceGradient->ramp_time_1/2);
+	
+	//Set start times
+	Prephase->setRelativeStartTime(0);
+	SliceGradient->setRelativeStartTime(Prephase->duration());
+	RF->setRelativeStartTime(SliceGradient->relativeStartTime()+SliceGradient->ramp_time_1);
+	
+	setModified(false);
+	
+	return true;
+}
+Vector3 STExcite::terminalMoment() {
+	if (!SliceGradient) return Vector3(0,0,0);
+	if (!RF) return Vector3(0,0,0);
+	double effective_time=SliceGradient->ramp_time_2/2+SliceGradient->plateau_time-RF->referenceTime();
+	return SliceGradient->amplitude*effective_time;
+}
+
+double STExcite::duration() {
+	return SliceGradient->relativeStartTime()+SliceGradient->duration();
 }
 
 
