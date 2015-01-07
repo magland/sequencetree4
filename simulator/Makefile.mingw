@@ -1,5 +1,5 @@
 ..\bin\simulator.exe: main.o foundationclasses.o customclasses.o createsequence.o loadparametersfile.o st4.o stsimscanner.o stsimscannerblocklist.o
-	g++ -enable-stdcall-fixup -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc -Wl,-s -Wl,-subsystem,console -mthreads -Wl -o ..\bin\simulator.exe main.o foundationclasses.o customclasses.o createsequence.o loadparametersfile.o st4.o stsimscanner.o stsimscannerblocklist.o
+	g++ -Wl,-enable-stdcall-fixup -Wl,-enable-auto-import -Wl,-enable-runtime-pseudo-reloc -Wl,-s -Wl,-subsystem,console -mthreads -o ..\bin\simulator.exe main.o foundationclasses.o customclasses.o createsequence.o loadparametersfile.o st4.o stsimscanner.o stsimscannerblocklist.o
 
 main.o: main.cpp foundationclasses.h customclasses.h createsequence.h loadparametersfile.h ..\code\framework\st4.h stsimscanner.h stsimscannerblocklist.h
 	g++ -c -O2 -frtti -fexceptions -mthreads -Wall -DUNICODE -DQT_LARGEFILE_SUPPORT -I"..\code\framework" -I"..\src\shared" -I"."  -o main.o main.cpp
