@@ -64,5 +64,5 @@ SOURCES += vsphantomplugin.cpp
 RESOURCES += ../gui/st4.qrc
 RC_FILE += vs.rc
 
-win32: LIBS += -L../../bin -lgsl
-unix: LIBS += -L../../bin -lgsl -lgslcblas
+#win32: LIBS += -L../../bin -lgsl
+#unix: LIBS += -L../../bin -lgsl -lgslcblas
