@@ -7,12 +7,13 @@
 #include "stconfigurationdlg.h"
 #include <QMetaObject>
 #include <QMetaProperty>
-#include <QPluginLoader>
+//#include <QPluginLoader>
 #include "vsphantomplugin.h"
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
 #include <QTextEdit>
+#include "basicphantoms.h"
 
 VSMainWindow::VSMainWindow(QWidget *parent) : QMainWindow(parent) {
 	ui.setupUi(this);
@@ -368,7 +369,16 @@ void VSMainWindow::save_phantom_settings() {
 	if (m_phantom) settings.setValue("current_phantom",m_phantom->name());
 }
 
+
 void VSMainWindow::load_phantom_plugins() {
+
+	VSPhantomPlugin *ptr=new BasicPhantoms;
+	QList<VSPhantom *> phlist=ptr->phantomList();
+	foreach (VSPhantom *P,phlist) {
+		m_phantom_choices << P;
+	}
+	
+	/*
 	QString search_path=ST_ROOT_DIR+"/vsplugins";
 	QDir dir(search_path);
 	QStringList list=dir.entryList(QDir::Files);
@@ -396,5 +406,6 @@ void VSMainWindow::load_phantom_plugins() {
 				qWarning() << "Unable to load plugin:" << QFileInfo(path).fileName() << loader->errorString();
 		}
 	}
+	*/
 }
 

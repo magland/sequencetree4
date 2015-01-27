@@ -283,7 +283,7 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 		int ADC_index=raw_readout_record.ADC_index;
 		int num_points=raw_readout_record.num_points;
 		long array_index=raw_readout_record.array_index;
-		for (int hi=0; hi<X.header_size; hi++) {
+		for (int hi=0; hi<X.header_size; hi++) {  //cheng (this will be tricky because there are two headers)
 			quint8 dummy;
 			fread(&dummy,sizeof(quint8),1,dataf);
 		}

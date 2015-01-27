@@ -86,6 +86,16 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QRadioButton" name="siemens_vd_format" >
+       <property name="text" >
+        <string>Siemens VD format</string>
+       </property>
+       <property name="checked" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

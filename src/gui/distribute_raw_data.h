@@ -7,6 +7,7 @@
 
 #define RAW_DATA_FORMAT_SIEMENS_VA 1
 #define RAW_DATA_FORMAT_SIEMENS_VB 2
+#define RAW_DATA_FORMAT_SIEMENS_VD 3
 
 struct DistributeRawDataStruct {
 	QString output_directory;

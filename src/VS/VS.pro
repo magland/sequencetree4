@@ -58,11 +58,19 @@ HEADERS += stglobalview.h stcompilelog.h
 SOURCES += stglobalview.cpp stcompilelog.cpp
 FORMS += stglobalview.ui stringchooserdlg.ui stconfigurationdlg.ui
 
+INCLUDEPATH += ./phantoms
+DEPENDPATH += ./phantoms
+VPATH += ./phantoms
+HEADERS += basicphantoms.h
+SOURCES += basicphantoms.cpp
+HEADERS += kspacefunction.h basickspacefunctions.h vsbasicphantoms.h
+SOURCES += kspacefunction.cpp basickspacefunctions.cpp vsbasicphantoms.cpp
+
 HEADERS += vsphantomplugin.h
 SOURCES += vsphantomplugin.cpp
 
 RESOURCES += ../gui/st4.qrc
 RC_FILE += vs.rc
 
-#win32: LIBS += -L../../bin -lgsl
-#unix: LIBS += -L../../bin -lgsl -lgslcblas
+win32: LIBS += -L../../bin -lgsl
+unix: LIBS += -L../../bin -lgsl -lgslcblas

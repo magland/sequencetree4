@@ -30,6 +30,7 @@ public:
 		ui.raw_data->setText(settings.value("raw_data").toString());
 		ui.siemens_va_format->setChecked(settings.value("raw_data_format").toString()=="siemens_va");
 		ui.siemens_vb_format->setChecked(settings.value("raw_data_format").toString()=="siemens_vb");		
+		ui.siemens_vd_format->setChecked(settings.value("raw_data_format").toString()=="siemens_vd");	
 		
 		connect(ui.browse_raw_data_button,SIGNAL(clicked()),this,SLOT(slot_browse_raw_data()));
 		slot_browse_raw_data();
@@ -60,6 +61,11 @@ public:
 			X.header_size=128;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VB;
 			settings.setValue("raw_data_format","siemens_vb");
+		}
+		else if (ui.siemens_vd_format->isChecked()) {
+			X.header_size=0;
+			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VD;
+			settings.setValue("raw_data_format","siemens_vd");
 		}
 		else {
 			X.header_size=128;
