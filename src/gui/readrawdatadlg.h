@@ -63,7 +63,7 @@ public:
 			settings.setValue("raw_data_format","siemens_vb");
 		}
 		else if (ui.siemens_vd_format->isChecked()) {
-			X.header_size=0;
+            X.header_size=192;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VD;
 			settings.setValue("raw_data_format","siemens_vd");
 		}

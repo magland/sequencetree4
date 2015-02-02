@@ -46,6 +46,7 @@ struct RawReadoutRecord {
 	int ADC_index;
 	int num_points;
 	long array_index;
+    int channel_index; //add data member for VD format
 };
 
 void distribute_raw_data(DistributeRawDataStruct &X);

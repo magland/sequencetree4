@@ -207,6 +207,7 @@ void define_raw_readout_records(QList<RawReadoutRecord> &raw_readout_records,
 					raw_readout_record.ADC_index=record.ADC_index;
 					raw_readout_record.num_points=record.num_points;
 					raw_readout_record.array_index=index_1d;
+                    raw_readout_record.channel_index=channel_index;
 					raw_readout_records << raw_readout_record;
 					
 					S->last_real_index=real_index;
@@ -279,14 +280,33 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 			fread(&dummy,sizeof(quint8),1,dataf);
 		}
 	}
+    else if (X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VD) { //read header for VD
+        fseek(dataf,2*4+152*64+126*4,SEEK_SET);
+        quint32 header_size;
+        fread(&header_size,sizeof(quint32),1,dataf);
+        fseek(dataf,header_size-4,SEEK_CUR);
+    }
 	foreach (RawReadoutRecord raw_readout_record,raw_readout_records) {
 		int ADC_index=raw_readout_record.ADC_index;
 		int num_points=raw_readout_record.num_points;
 		long array_index=raw_readout_record.array_index;
-		for (int hi=0; hi<X.header_size; hi++) {  //cheng (this will be tricky because there are two headers)
-			quint8 dummy;
-			fread(&dummy,sizeof(quint8),1,dataf);
-		}
+        if(X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VA||X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VB) {
+            fseek(dataf,X.header_size,SEEK_CUR);
+            /*for (int hi=0; hi<X.header_size; hi++) {
+                quint8 dummy;
+                fread(&dummy,sizeof(quint8),1,dataf);
+            }*/
+        }
+        else if(X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VD) { //VD raw data format
+            if (raw_readout_record.channel_index==0) {
+                fseek(dataf,X.header_size,SEEK_CUR);
+                /*    for (int hi=0; hi<X.header_size; hi++) {
+                quint8 dummy;
+                fread(&dummy,sizeof(quint8),1,dataf);
+                }*/
+            }
+            fseek(dataf,32,SEEK_CUR); //header size of 32 bytes for each readout event
+        }
 		QList<float> readout_real,readout_imag;
 		for (int hi=0; hi<num_points; hi++) {
 			float hold=0;
