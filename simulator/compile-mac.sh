@@ -1,5 +1,6 @@
-#! /bin/sh
+#!/bin/sh
 
-qmake -spec macx-g++
+echo "hello, world"
+
+qmake
 make
-
