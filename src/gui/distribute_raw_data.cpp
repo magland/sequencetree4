@@ -281,7 +281,18 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 		}
 	}
     else if (X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VD) { //read header for VD
-        fseek(dataf,2*4+152*64+126*4,SEEK_SET);
+        fseek(dataf,4,SEEK_SET);
+        quint32 nMeas;
+        fread(&nMeas,sizeof(quint32),1,dataf);
+        quint64 measLen=0;
+        for(quint32 i=0;i<nMeas-1;++i) {
+            fseek(dataf,16,SEEK_CUR);
+            quint64 tmp;
+            fread(&tmp,sizeof(quint64),1,dataf);
+            measLen+=tmp%512?(tmp/512+1)*512:tmp;
+            fseek(dataf,152-24,SEEK_CUR);
+        }
+        fseek(dataf,2*4+152*64+126*4+measLen,SEEK_SET);
         quint32 header_size;
         fread(&header_size,sizeof(quint32),1,dataf);
         fseek(dataf,header_size-4,SEEK_CUR);
