@@ -2,8 +2,10 @@
 
 TEMPLATE = subdirs
 SUBDIRS += gui 
-equals(QT_MAJOR_VERSION, 4) {
-    SUBDIRS += VS VS/plugins
-} 
+#equals(QT_MAJOR_VERSION, 4) {
+#    SUBDIRS += VS VS/plugins
+#}
+SUBDIRS += VS
+
 SUBDIRS += results_viewer st4controller
 
