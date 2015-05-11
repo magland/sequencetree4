@@ -26,7 +26,7 @@ public:
 	void setRawDataTemplate(QString fname) {
 		ui.raw_data_template->setText(fname);
 		QSettings settings("Magland","SequenceTree4");
-		ui.num_channels->setText(settings.value("num_channels","1").toString());
+        //ui.num_channels->setText(settings.value("num_channels","1").toString());
 		ui.raw_data->setText(settings.value("raw_data").toString());
 		ui.siemens_va_format->setChecked(settings.value("raw_data_format").toString()=="siemens_va");
 		ui.siemens_vb_format->setChecked(settings.value("raw_data_format").toString()=="siemens_vb");		
@@ -37,7 +37,7 @@ public:
 	}
 	void accept() {
 		QSettings settings("Magland","SequenceTree4");
-		settings.setValue("num_channels",ui.num_channels->text());
+    //	settings.setValue("num_channels",ui.num_channels->text());
 		settings.setValue("raw_data",ui.raw_data->text());
 		
 		QDir(ST_TMP_DIR).mkdir("data");
@@ -53,7 +53,8 @@ public:
 		X.data_fname=ui.raw_data->text();
         FILE *dataf=fopen(X.data_fname.toLatin1().data(),"rb");
         if (!dataf) return;
-		X.num_channels=ui.num_channels->text().toInt();
+        //X.num_channels=ui.num_channels->text().toInt();
+        X.num_channels=1;
 		if (ui.siemens_va_format->isChecked()) {
 			X.header_size=128;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VA;
