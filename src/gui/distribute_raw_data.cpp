@@ -267,18 +267,20 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 	FILE *dataf=fopen(X.data_fname.toLatin1().data(),"rb");
 	if (!dataf) return;	
 	if (X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VA) { //read header for VA
-		for (int hi=0; hi<32;  hi++) {
+        fseek(dataf,32,SEEK_CUR);
+        /*for (int hi=0; hi<32;  hi++) {
 			quint8 dummy;
 			fread(&dummy,sizeof(quint8),1,dataf);
-		}
+        }*/
 	}
 	else if (X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VB) { //read header for VB
 		quint32 header_size;
 		fread(&header_size,sizeof(quint32),1,dataf);
-		for (int hi=0; hi<header_size-4;  hi++) {
+        fseek(dataf,header_size-4,SEEK_CUR);
+        /*for (int hi=0; hi<header_size-4;  hi++) {
 			quint8 dummy;
 			fread(&dummy,sizeof(quint8),1,dataf);
-		}
+        }*/
 	}
     else if (X.raw_data_format==RAW_DATA_FORMAT_SIEMENS_VD) { //read header for VD
         fseek(dataf,4,SEEK_SET);
@@ -319,12 +321,14 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
             fseek(dataf,32,SEEK_CUR); //header size of 32 bytes for each readout event
         }
 		QList<float> readout_real,readout_imag;
+        float hold[2*num_points];
+        fread(hold,4,2*num_points,dataf);
 		for (int hi=0; hi<num_points; hi++) {
-			float hold=0;
-			fread(&hold,4,1,dataf); //must be 4 bytes
-			readout_real << hold;
-			fread(&hold,4,1,dataf); //must be 4 bytes
-			readout_imag << hold;
+        //	float hold=0;
+        //	fread(&hold,4,1,dataf); //must be 4 bytes
+            readout_real << hold[2*hi];
+        //	fread(&hold,4,1,dataf); //must be 4 bytes
+            readout_imag << hold[2*hi+1];
 		}
 		if (ADC_index<0) {
 			qWarning() << "ADC_index is negative!";
@@ -344,7 +348,7 @@ void distribute_raw_data(DistributeRawDataStruct &X) {
 			}
 		}
 	}
-
+    fclose(dataf);
 	//write arrays
 	for (int j=0; j<raw_file_structs.count(); j++) {
 		QString fname=QString("%1/ADC%2.mda").arg(X.output_directory).arg(j);

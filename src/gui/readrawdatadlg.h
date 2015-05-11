@@ -51,27 +51,59 @@ public:
 		X.output_directory=ST_TMP_DIR+"/data";
 		X.template_fname=ui.raw_data_template->text();
 		X.data_fname=ui.raw_data->text();
+        FILE *dataf=fopen(X.data_fname.toLatin1().data(),"rb");
+        if (!dataf) return;
 		X.num_channels=ui.num_channels->text().toInt();
 		if (ui.siemens_va_format->isChecked()) {
 			X.header_size=128;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VA;
 			settings.setValue("raw_data_format","siemens_va");
+            fseek(dataf,30,SEEK_CUR);
+            quint16 usedChannel;
+            fread(&usedChannel,sizeof(quint16),1,dataf);
+            X.num_channels=usedChannel;
 		}
 		else if (ui.siemens_vb_format->isChecked()) {
 			X.header_size=128;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VB;
 			settings.setValue("raw_data_format","siemens_vb");
+            quint32 header_size;
+            fread(&header_size,sizeof(quint32),1,dataf);
+            fseek(dataf,header_size-4,SEEK_CUR);
+            fseek(dataf,30,SEEK_CUR);
+            quint16 usedChannel;
+            fread(&usedChannel,sizeof(quint16),1,dataf);
+            X.num_channels=usedChannel;
 		}
 		else if (ui.siemens_vd_format->isChecked()) {
             X.header_size=192;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VD;
 			settings.setValue("raw_data_format","siemens_vd");
+            fseek(dataf,4,SEEK_SET);
+            quint32 nMeas;
+            fread(&nMeas,sizeof(quint32),1,dataf);
+            quint64 measLen=0;
+            for(quint32 i=0;i<nMeas-1;++i) {
+                fseek(dataf,16,SEEK_CUR);
+                quint64 tmp;
+                fread(&tmp,sizeof(quint64),1,dataf);
+                measLen+=tmp%512?(tmp/512+1)*512:tmp;
+                fseek(dataf,152-24,SEEK_CUR);
+            }
+            fseek(dataf,2*4+152*64+126*4+measLen,SEEK_SET);
+            quint32 header_size;
+            fread(&header_size,sizeof(quint32),1,dataf);
+            fseek(dataf,header_size-4,SEEK_CUR);
+            fseek(dataf,50,SEEK_CUR);
+            quint16 usedChannel;
+            fread(&usedChannel,sizeof(quint16),1,dataf);
+            X.num_channels=usedChannel;
 		}
 		else {
 			X.header_size=128;
 			X.raw_data_format=RAW_DATA_FORMAT_SIEMENS_VA;
 		}
-		
+        fclose(dataf);
 		//the following was added on 1/6/2014 at request of michael
 		QSettings settings0("Magland","SequenceTree4"); 
 		settings0.setValue("experiments_folder",QFileInfo(X.data_fname).path());
