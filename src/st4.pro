@@ -6,3 +6,4 @@ equals(QT_MAJOR_VERSION, 4) {
     SUBDIRS += VS VS/plugins
 } 
 SUBDIRS += results_viewer st4controller
+

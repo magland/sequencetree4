@@ -1,4 +1,7 @@
-4.5.2
+4.6.0
 
-== New in 4.5.2 ==
-Modified save experiments behavior for michael
+== New in 4.6.0 ==
+Moved to Qt5
+Support VD versions
+Auto detect number of channels
+Other changes
