@@ -18,7 +18,6 @@
 
 *****************************************************************************/
 
-
 #include "stsequenceview.h"
 #include <QMessageBox>
 #include "stringchooserdlg.h"
@@ -44,6 +43,7 @@ STSequenceView::STSequenceView(QWidget *parent) : QWidget(parent) {
 	QString bin_dir=ST_BIN_DIR;
 	QString tmp_dir=ST_TMP_DIR;
 	QString src_dir=ST_SIMULATOR_DIR;
+
 	#ifdef WIN32
 	bin_dir.replace("/","\\");
 	tmp_dir.replace("/","\\");
