@@ -199,6 +199,9 @@ void STMetaSequenceSimulator::slot_compile_finished() {
 
 bool STMetaSequenceSimulator::run_sequence(long block_min,long block_max,QString runmode,QString param1,bool wait_for_finished) {
 	if (m_simulate_process->state()!=QProcess::NotRunning) return false;
+    if (!QDir(tmpDirectory()).exists()) {
+        QDir(QFileInfo(tmpDirectory()).path()).mkdir(QFileInfo(tmpDirectory()).fileName());
+    }
 	m_runmode=runmode;
 	m_hold_start_block_index=block_min;
 	emit simulationStarted();

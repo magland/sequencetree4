@@ -261,7 +261,7 @@ void STMainWindow::slot_compile() {
 	if (!currentSequenceView()) return;
 	currentSequenceView()->clearCompileLog();
 	statusBar()->showMessage(tr("Compiling sequence..."),MSG_DELAY);
-	currentSequenceView()->slot_compile();
+    currentSequenceView()->slot_compile();
 	update_actions();
 }
 

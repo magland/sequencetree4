@@ -1,6 +1,5 @@
 #!/bin/sh
 
-echo "hello, world"
-
-qmake
+/Users/Cheng/Qt/5.4/clang_64/bin/qmake
+#qmake
 make
